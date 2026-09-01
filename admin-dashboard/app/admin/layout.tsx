@@ -1,19 +1,16 @@
 // app/admin/layout.tsx
 import { redirect } from 'next/navigation';
-import { UserButton } from '@clerk/nextjs';
-import { requireAdmin } from '@/lib/admin-auth';
 import Link from 'next/link';
+import { requireAdmin } from '@/lib/admin-auth';
+import SignOutButton from './sign-out-button';
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const check = await requireAdmin();
 
   if (!check.authorized) {
-    // Signed in but not an admin -> bounce to the storefront, not a sign-in loop
     if (check.reason === 'not-admin') {
       redirect('/?admin_denied=1');
     }
-    // Not signed in at all -> middleware should already have caught this,
-    // but redirect defensively just in case.
     redirect('/sign-in');
   }
 
@@ -36,7 +33,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <Link href="/" style={{ color: '#f5f2fb', opacity: 0.6 }}>← Back to store</Link>
           </nav>
         </div>
-        <UserButton afterSignOutUrl="/" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <span style={{ fontSize: 13, opacity: 0.6 }}>{check.email}</span>
+          <SignOutButton />
+        </div>
       </header>
       <main style={{ padding: 28 }}>{children}</main>
     </div>

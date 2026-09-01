@@ -1,8 +1,11 @@
 // app/page.tsx
 import Link from 'next/link';
-import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs';
+import { createClient } from '@/lib/supabase/server';
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   return (
     <main
       style={{
@@ -18,16 +21,15 @@ export default function Home() {
       }}
     >
       <h1>Bright Spot Admin</h1>
-      <SignedOut>
-        <SignInButton>
-          <button style={{ padding: '10px 20px', cursor: 'pointer' }}>Sign in</button>
-        </SignInButton>
-      </SignedOut>
-      <SignedIn>
+      {user ? (
         <Link href="/admin" style={{ color: '#FB923C' }}>
           Go to dashboard →
         </Link>
-      </SignedIn>
+      ) : (
+        <Link href="/sign-in" style={{ color: '#FB923C' }}>
+          Sign in →
+        </Link>
+      )}
     </main>
   );
 }

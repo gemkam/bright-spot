@@ -1,38 +1,37 @@
 // lib/admin-auth.ts
-// Checks whether the current Clerk user is authorized for the admin dashboard.
-// Authorization = their Clerk user ID exists in the `admin_users` table in Neon.
+// Checks whether the current Supabase user is authorized for the admin dashboard.
 //
-// This is a second layer of protection on top of Clerk's own sign-in check:
-// Clerk confirms WHO the person is; this confirms they're actually ALLOWED
-// into the admin area (not just any customer with an account).
+// Note: this check is for UI purposes (showing/hiding pages, friendly redirects).
+// The REAL security boundary is Row Level Security in Postgres — every table
+// has a policy requiring is_admin() to be true, so even if this check were
+// somehow bypassed, the database itself would refuse to return or accept data
+// for a non-admin user. Two layers, not just one.
 
-import { auth } from '@clerk/nextjs/server';
-import { sql } from './db';
+import { createClient } from './supabase/server';
 
 export async function requireAdmin() {
-  const { userId } = await auth();
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  if (!userId) {
+  if (!user) {
     return { authorized: false as const, reason: 'not-signed-in' as const };
   }
 
-  const rows = await sql`
-    SELECT id, role FROM admin_users WHERE clerk_user_id = ${userId} LIMIT 1
-  `;
+  const { data: adminRow } = await supabase
+    .from('admin_users')
+    .select('role')
+    .eq('user_id', user.id)
+    .maybeSingle();
 
-  if (rows.length === 0) {
+  if (!adminRow) {
     return { authorized: false as const, reason: 'not-admin' as const };
   }
 
-  return { authorized: true as const, role: rows[0].role as string };
+  return { authorized: true as const, role: adminRow.role as string, email: user.email };
 }
 
-// One-time helper for you to run yourself (e.g. from a temporary API route,
-// or directly in the Neon SQL editor) to add your own Clerk user ID once
-// you've signed up once through Clerk and know your user ID:
+// One-time setup: after you sign up once through /sign-in, add yourself as an
+// admin by running this in the Supabase SQL Editor (replace the email):
 //
-//   INSERT INTO admin_users (clerk_user_id, email, role)
-//   VALUES ('user_XXXXXXXXXXXX', 'you@example.com', 'admin');
-//
-// Find your Clerk user ID in the Clerk dashboard under Users, or by logging
-// `userId` from `auth()` anywhere in your app while signed in.
+//   insert into admin_users (user_id, email, role)
+//   select id, email, 'admin' from auth.users where email = 'you@example.com';

@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { updateOrderStatus, type OrderStatus } from '../actions';
 
-type OrderItem = { product_name: string; quantity: number; line_total_pkr: string };
+type OrderItem = { product_name_snapshot: string; quantity: number; line_total_pkr: number };
 type Order = {
   id: string;
   order_number: string;
@@ -12,24 +12,17 @@ type Order = {
   customer_address: string;
   customer_city: string;
   notes: string | null;
-  subtotal_pkr: string;
+  subtotal_pkr: number;
   status: OrderStatus;
   created_at: string;
-  items: OrderItem[];
+  order_items: OrderItem[];
 };
 
-// The COD lifecycle, in order. Cancelled/returned are handled as a
-// separate destructive action rather than sitting inline in the sequence.
 const FLOW: OrderStatus[] = ['pending', 'confirmed', 'packed', 'shipped', 'delivered'];
 
 const STATUS_COLORS: Record<OrderStatus, string> = {
-  pending: '#94a3b8',
-  confirmed: '#38bdf8',
-  packed: '#a78bfa',
-  shipped: '#fb923c',
-  delivered: '#4ade80',
-  cancelled: '#f87171',
-  returned: '#f87171',
+  pending: '#94a3b8', confirmed: '#38bdf8', packed: '#a78bfa',
+  shipped: '#fb923c', delivered: '#4ade80', cancelled: '#f87171', returned: '#f87171',
 };
 
 export default function OrdersTable({ initialOrders }: { initialOrders: Order[] }) {
@@ -59,14 +52,9 @@ export default function OrdersTable({ initialOrders }: { initialOrders: Order[] 
             key={s}
             onClick={() => setStatusFilter(s)}
             style={{
-              padding: '6px 14px',
-              borderRadius: 4,
-              border: '1px solid ' + (statusFilter === s ? '#F97316' : 'rgba(255,255,255,0.2)'),
+              padding: '6px 14px', borderRadius: 4, border: '1px solid ' + (statusFilter === s ? '#F97316' : 'rgba(255,255,255,0.2)'),
               background: statusFilter === s ? 'rgba(249,115,22,0.15)' : 'transparent',
-              color: statusFilter === s ? '#FB923C' : '#f5f2fb',
-              fontSize: 13,
-              cursor: 'pointer',
-              textTransform: 'capitalize',
+              color: statusFilter === s ? '#FB923C' : '#f5f2fb', fontSize: 13, cursor: 'pointer', textTransform: 'capitalize',
             }}
           >
             {s}
@@ -79,35 +67,21 @@ export default function OrdersTable({ initialOrders }: { initialOrders: Order[] 
           const next = nextStatus(o.status);
           const isOpen = expanded === o.id;
           return (
-            <div
-              key={o.id}
-              style={{
-                border: '1px solid rgba(255,255,255,0.12)',
-                borderRadius: 6,
-                padding: 14,
-              }}
-            >
+            <div key={o.id} style={{ border: '1px solid rgba(255,255,255,0.12)', borderRadius: 6, padding: 14 }}>
               <div
                 style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
                 onClick={() => setExpanded(isOpen ? null : o.id)}
               >
                 <div>
-                  <div style={{ fontWeight: 600, fontSize: 14 }}>
-                    {o.order_number} — {o.customer_name}
-                  </div>
+                  <div style={{ fontWeight: 600, fontSize: 14 }}>{o.order_number} — {o.customer_name}</div>
                   <div style={{ opacity: 0.6, fontSize: 12, marginTop: 2 }}>
                     {o.customer_phone} · {o.customer_city} · Rs {Number(o.subtotal_pkr).toLocaleString()}
                   </div>
                 </div>
                 <span
                   style={{
-                    fontSize: 12,
-                    fontWeight: 600,
-                    textTransform: 'uppercase',
-                    color: STATUS_COLORS[o.status],
-                    border: `1px solid ${STATUS_COLORS[o.status]}`,
-                    borderRadius: 4,
-                    padding: '3px 10px',
+                    fontSize: 12, fontWeight: 600, textTransform: 'uppercase', color: STATUS_COLORS[o.status],
+                    border: `1px solid ${STATUS_COLORS[o.status]}`, borderRadius: 4, padding: '3px 10px',
                   }}
                 >
                   {o.status}
@@ -119,14 +93,13 @@ export default function OrdersTable({ initialOrders }: { initialOrders: Order[] 
                   <div style={{ opacity: 0.7, marginBottom: 8 }}>{o.customer_address}</div>
                   {o.notes && <div style={{ opacity: 0.6, marginBottom: 8, fontStyle: 'italic' }}>Note: {o.notes}</div>}
                   <div style={{ marginBottom: 12 }}>
-                    {o.items.map((it, i) => (
+                    {o.order_items.map((it, i) => (
                       <div key={i} style={{ display: 'flex', justifyContent: 'space-between', opacity: 0.85, marginBottom: 4 }}>
-                        <span>{it.product_name} × {it.quantity}</span>
+                        <span>{it.product_name_snapshot} × {it.quantity}</span>
                         <span>Rs {Number(it.line_total_pkr).toLocaleString()}</span>
                       </div>
                     ))}
                   </div>
-
                   <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                     {next && (
                       <button onClick={() => setStatus(o.id, next)} style={actionBtn(STATUS_COLORS[next])}>
@@ -134,14 +107,10 @@ export default function OrdersTable({ initialOrders }: { initialOrders: Order[] 
                       </button>
                     )}
                     {o.status !== 'cancelled' && o.status !== 'delivered' && o.status !== 'returned' && (
-                      <button onClick={() => setStatus(o.id, 'cancelled')} style={actionBtn('#f87171')}>
-                        Cancel order
-                      </button>
+                      <button onClick={() => setStatus(o.id, 'cancelled')} style={actionBtn('#f87171')}>Cancel order</button>
                     )}
                     {o.status === 'delivered' && (
-                      <button onClick={() => setStatus(o.id, 'returned')} style={actionBtn('#f87171')}>
-                        Mark as returned
-                      </button>
+                      <button onClick={() => setStatus(o.id, 'returned')} style={actionBtn('#f87171')}>Mark as returned</button>
                     )}
                   </div>
                 </div>
@@ -157,13 +126,5 @@ export default function OrdersTable({ initialOrders }: { initialOrders: Order[] 
 }
 
 function actionBtn(color: string): React.CSSProperties {
-  return {
-    padding: '6px 14px',
-    borderRadius: 4,
-    border: `1px solid ${color}`,
-    background: 'transparent',
-    color,
-    fontSize: 13,
-    cursor: 'pointer',
-  };
+  return { padding: '6px 14px', borderRadius: 4, border: `1px solid ${color}`, background: 'transparent', color, fontSize: 13, cursor: 'pointer' };
 }
