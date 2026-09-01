@@ -30,6 +30,7 @@ export default function OrdersTable({ initialOrders }: { initialOrders: Order[] 
   const [statusFilter, setStatusFilter] = useState<'all' | OrderStatus>('all');
   const [expanded, setExpanded] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [exporting, setExporting] = useState(false);
 
   const filtered = statusFilter === 'all' ? orders : orders.filter((o) => o.status === statusFilter);
 
@@ -44,22 +45,115 @@ export default function OrdersTable({ initialOrders }: { initialOrders: Order[] 
     return FLOW[idx + 1];
   }
 
+  async function handleDownloadListPdf() {
+    setExporting(true);
+    try {
+      const { default: jsPDF } = await import('jspdf');
+      const autoTable = (await import('jspdf-autotable')).default;
+
+      const doc = new jsPDF();
+      const title = statusFilter === 'all' ? 'All Orders' : statusFilter;
+
+      doc.setFontSize(16);
+      doc.text('Bright Spot — Orders', 14, 18);
+      doc.setFontSize(10);
+      doc.setTextColor(120);
+      doc.text(`${title} · ${filtered.length} orders · Generated ${new Date().toLocaleString()}`, 14, 25);
+
+      autoTable(doc, {
+        startY: 32,
+        head: [['Order #', 'Customer', 'Phone', 'City', 'Total (PKR)', 'Status', 'Date']],
+        body: filtered.map((o) => [
+          o.order_number,
+          o.customer_name,
+          o.customer_phone,
+          o.customer_city,
+          Number(o.subtotal_pkr).toLocaleString(),
+          o.status,
+          new Date(o.created_at).toLocaleDateString(),
+        ]),
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [249, 115, 22] },
+      });
+
+      doc.save(`bright-spot-orders-${statusFilter}-${Date.now()}.pdf`);
+    } finally {
+      setExporting(false);
+    }
+  }
+
+  async function handleDownloadReceipt(o: Order) {
+    const { default: jsPDF } = await import('jspdf');
+    const autoTable = (await import('jspdf-autotable')).default;
+
+    const doc = new jsPDF();
+    let y = 20;
+
+    doc.setFontSize(18);
+    doc.text('Bright Spot', 14, y); y += 8;
+    doc.setFontSize(10);
+    doc.setTextColor(120);
+    doc.text('Multan, Punjab, Pakistan', 14, y); y += 12;
+
+    doc.setTextColor(0);
+    doc.setFontSize(13);
+    doc.text('Order Receipt', 14, y); y += 8;
+    doc.setFontSize(10);
+    doc.text(`Order ID: ${o.order_number}`, 14, y); y += 6;
+    doc.text(`Date: ${new Date(o.created_at).toLocaleString()}`, 14, y); y += 6;
+    doc.text(`Payment Method: Cash on Delivery`, 14, y); y += 6;
+    doc.text(`Status: ${o.status}`, 14, y); y += 10;
+
+    doc.setFontSize(11);
+    doc.text('Customer Details', 14, y); y += 7;
+    doc.setFontSize(10);
+    doc.text(`Name: ${o.customer_name}`, 14, y); y += 6;
+    doc.text(`Phone: ${o.customer_phone}`, 14, y); y += 6;
+    const addressLines = doc.splitTextToSize(`Address: ${o.customer_address}, ${o.customer_city}`, 180);
+    doc.text(addressLines, 14, y); y += addressLines.length * 6 + 2;
+    if (o.notes) {
+      const noteLines = doc.splitTextToSize(`Notes: ${o.notes}`, 180);
+      doc.text(noteLines, 14, y); y += noteLines.length * 6 + 2;
+    }
+    y += 4;
+
+    autoTable(doc, {
+      startY: y,
+      head: [['Product', 'Qty', 'Total (PKR)']],
+      body: o.order_items.map((it) => [it.product_name_snapshot, String(it.quantity), Number(it.line_total_pkr).toLocaleString()]),
+      styles: { fontSize: 9 },
+      headStyles: { fillColor: [249, 115, 22] },
+    });
+
+    const finalY = (doc as any).lastAutoTable.finalY + 10;
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`Total Due on Delivery: Rs ${Number(o.subtotal_pkr).toLocaleString()}`, 14, finalY);
+
+    doc.save(`${o.order_number}-receipt.pdf`);
+  }
+
   return (
     <div>
-      <div style={{ marginBottom: 16, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-        {(['all', ...FLOW, 'cancelled', 'returned'] as const).map((s) => (
-          <button
-            key={s}
-            onClick={() => setStatusFilter(s)}
-            style={{
-              padding: '6px 14px', borderRadius: 4, border: '1px solid ' + (statusFilter === s ? '#F97316' : 'rgba(255,255,255,0.2)'),
-              background: statusFilter === s ? 'rgba(249,115,22,0.15)' : 'transparent',
-              color: statusFilter === s ? '#FB923C' : '#f5f2fb', fontSize: 13, cursor: 'pointer', textTransform: 'capitalize',
-            }}
-          >
-            {s}
-          </button>
-        ))}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 10 }}>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          {(['all', ...FLOW, 'cancelled', 'returned'] as const).map((s) => (
+            <button
+              key={s}
+              onClick={() => setStatusFilter(s)}
+              style={{
+                padding: '6px 14px', borderRadius: 4, border: '1px solid ' + (statusFilter === s ? '#F97316' : 'rgba(255,255,255,0.2)'),
+                background: statusFilter === s ? 'rgba(249,115,22,0.15)' : 'transparent',
+                color: statusFilter === s ? '#FB923C' : '#f5f2fb', fontSize: 13, cursor: 'pointer', textTransform: 'capitalize',
+              }}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+        <button onClick={handleDownloadListPdf} disabled={exporting} style={pdfBtnStyle}>
+          {exporting ? 'Generating…' : '⬇ Download PDF'}
+        </button>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -112,6 +206,7 @@ export default function OrdersTable({ initialOrders }: { initialOrders: Order[] 
                     {o.status === 'delivered' && (
                       <button onClick={() => setStatus(o.id, 'returned')} style={actionBtn('#f87171')}>Mark as returned</button>
                     )}
+                    <button onClick={() => handleDownloadReceipt(o)} style={actionBtn('#f5f2fb')}>⬇ Download receipt PDF</button>
                   </div>
                 </div>
               )}
@@ -128,3 +223,7 @@ export default function OrdersTable({ initialOrders }: { initialOrders: Order[] 
 function actionBtn(color: string): React.CSSProperties {
   return { padding: '6px 14px', borderRadius: 4, border: `1px solid ${color}`, background: 'transparent', color, fontSize: 13, cursor: 'pointer' };
 }
+const pdfBtnStyle: React.CSSProperties = {
+  padding: '8px 16px', background: 'none', border: '1px solid rgba(255,255,255,0.25)',
+  borderRadius: 6, color: '#f5f2fb', fontWeight: 500, fontSize: 13, cursor: 'pointer',
+};
