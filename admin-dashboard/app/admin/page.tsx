@@ -8,7 +8,7 @@ export default async function AdminProductsPage() {
   const [{ data: products }, { data: categories }] = await Promise.all([
     supabase
       .from('products')
-      .select('id, category_id, name, note, price_pkr, stock_quantity, is_active')
+      .select('id, category_id, name, note, description, price_pkr, stock_quantity, is_active, image_front, image_back')
       .order('category_id')
       .order('name'),
     supabase.from('categories').select('id, label, sort_order').order('sort_order'),

@@ -4,10 +4,8 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 
-// Note: we don't manually re-check "is this user an admin" here like the old
-// Clerk version did — Row Level Security in Postgres does that automatically
-// for every query. If a non-admin's session somehow got this far, Supabase
-// itself would reject the update/insert/delete at the database level.
+// Note: RLS in Postgres enforces "admins only" automatically on every query
+// below — no manual re-check needed here.
 
 // ---------- Products ----------
 
@@ -32,9 +30,18 @@ export async function toggleActive(productId: string, isActive: boolean) {
   revalidatePath('/admin');
 }
 
-export async function updateProduct(productId: string, data: {
-  name: string; note: string; description: string; price_pkr: number; category_id: string;
-}) {
+export type ProductInput = {
+  category_id: string;
+  name: string;
+  note: string;
+  description: string;
+  price_pkr: number;
+  stock_quantity: number;
+  image_front: string;
+  image_back: string;
+};
+
+export async function updateProduct(productId: string, data: ProductInput) {
   const supabase = await createClient();
   const { error } = await supabase
     .from('products')
@@ -44,10 +51,7 @@ export async function updateProduct(productId: string, data: {
   revalidatePath('/admin');
 }
 
-export async function addProduct(data: {
-  category_id: string; name: string; note: string; description: string;
-  price_pkr: number; stock_quantity: number; image_front?: string; image_back?: string;
-}) {
+export async function addProduct(data: ProductInput) {
   const supabase = await createClient();
   const { error } = await supabase.from('products').insert(data);
   if (error) throw error;

@@ -1,16 +1,21 @@
 'use client';
 
 import { useState, useMemo, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { updateStock, toggleActive, deleteProduct } from './actions';
+import ProductForm from './product-form';
 
 type Product = {
   id: string;
   category_id: string;
   name: string;
   note: string;
+  description?: string;
   price_pkr: number;
   stock_quantity: number;
   is_active: boolean;
+  image_front?: string;
+  image_back?: string;
 };
 
 type Category = { id: string; label: string; sort_order: number };
@@ -25,6 +30,9 @@ export default function ProductsTable({
   const [products, setProducts] = useState(initialProducts);
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [isPending, startTransition] = useTransition();
+  const [formOpen, setFormOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const router = useRouter();
 
   const filtered = useMemo(() => {
     if (categoryFilter === 'all') return products;
@@ -49,19 +57,38 @@ export default function ProductsTable({
     startTransition(() => deleteProduct(id));
   }
 
+  function openAddForm() {
+    setEditingProduct(null);
+    setFormOpen(true);
+  }
+
+  function openEditForm(p: Product) {
+    setEditingProduct(p);
+    setFormOpen(true);
+  }
+
+  function handleSaved() {
+    setFormOpen(false);
+    setEditingProduct(null);
+    router.refresh();
+  }
+
   const categoryLabel = (id: string) => categories.find((c) => c.id === id)?.label ?? id;
 
   return (
     <div>
-      <div style={{ marginBottom: 16, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-        <button onClick={() => setCategoryFilter('all')} style={filterBtnStyle(categoryFilter === 'all')}>
-          All ({products.length})
-        </button>
-        {categories.map((c) => (
-          <button key={c.id} onClick={() => setCategoryFilter(c.id)} style={filterBtnStyle(categoryFilter === c.id)}>
-            {c.label} ({products.filter((p) => p.category_id === c.id).length})
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 10 }}>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <button onClick={() => setCategoryFilter('all')} style={filterBtnStyle(categoryFilter === 'all')}>
+            All ({products.length})
           </button>
-        ))}
+          {categories.map((c) => (
+            <button key={c.id} onClick={() => setCategoryFilter(c.id)} style={filterBtnStyle(categoryFilter === c.id)}>
+              {c.label} ({products.filter((p) => p.category_id === c.id).length})
+            </button>
+          ))}
+        </div>
+        <button onClick={openAddForm} style={addBtnStyle}>+ Add Product</button>
       </div>
 
       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
@@ -79,8 +106,15 @@ export default function ProductsTable({
           {filtered.map((p) => (
             <tr key={p.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
               <td style={td}>
-                <div style={{ fontWeight: 600 }}>{p.name}</div>
-                <div style={{ opacity: 0.5, fontSize: 12 }}>{p.note}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  {p.image_front && (
+                    <img src={p.image_front} alt="" style={{ width: 36, height: 36, objectFit: 'cover', borderRadius: 4, flexShrink: 0 }} />
+                  )}
+                  <div>
+                    <div style={{ fontWeight: 600 }}>{p.name}</div>
+                    <div style={{ opacity: 0.5, fontSize: 12 }}>{p.note}</div>
+                  </div>
+                </div>
               </td>
               <td style={td}>{categoryLabel(p.category_id)}</td>
               <td style={td}>{Number(p.price_pkr).toLocaleString()}</td>
@@ -108,15 +142,25 @@ export default function ProductsTable({
                 </button>
               </td>
               <td style={td}>
-                <button onClick={() => handleDelete(p.id, p.name)} style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer', fontSize: 12 }}>
-                  Delete
-                </button>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <button onClick={() => openEditForm(p)} style={rowActionBtn('#38bdf8')}>Edit</button>
+                  <button onClick={() => handleDelete(p.id, p.name)} style={rowActionBtn('#f87171')}>Delete</button>
+                </div>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
       {isPending && <p style={{ opacity: 0.5, fontSize: 12, marginTop: 8 }}>Saving…</p>}
+
+      {formOpen && (
+        <ProductForm
+          categories={categories}
+          editing={editingProduct}
+          onClose={() => { setFormOpen(false); setEditingProduct(null); }}
+          onSaved={handleSaved}
+        />
+      )}
     </div>
   );
 }
@@ -130,3 +174,13 @@ function filterBtnStyle(active: boolean): React.CSSProperties {
     fontSize: 13, cursor: 'pointer',
   };
 }
+function rowActionBtn(color: string): React.CSSProperties {
+  return {
+    padding: '4px 10px', fontSize: 12, borderRadius: 4, border: `1px solid ${color}`,
+    background: 'transparent', color, cursor: 'pointer',
+  };
+}
+const addBtnStyle: React.CSSProperties = {
+  padding: '8px 16px', background: 'linear-gradient(120deg, #FB923C, #F97316)',
+  border: 'none', borderRadius: 6, color: '#1a0e05', fontWeight: 600, fontSize: 13, cursor: 'pointer',
+};
