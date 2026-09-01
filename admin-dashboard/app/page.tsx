@@ -2,6 +2,8 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 
+const STORE_URL = 'https://bright-spot.vercel.app';
+
 export default async function Home() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -30,6 +32,9 @@ export default async function Home() {
           Sign in →
         </Link>
       )}
+      <a href={STORE_URL} style={{ color: 'rgba(245,242,251,0.6)', fontSize: 14, marginTop: 6 }}>
+        ← Back to store
+      </a>
     </main>
   );
 }

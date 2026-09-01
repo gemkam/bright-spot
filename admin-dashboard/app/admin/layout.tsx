@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { requireAdmin } from '@/lib/admin-auth';
 import SignOutButton from './sign-out-button';
 
+const STORE_URL = 'https://bright-spot.vercel.app';
+
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const check = await requireAdmin();
 
@@ -30,7 +32,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <nav style={{ display: 'flex', gap: 18, fontSize: 14 }}>
             <Link href="/admin" style={{ color: '#f5f2fb', opacity: 0.8 }}>Products</Link>
             <Link href="/admin/orders" style={{ color: '#f5f2fb', opacity: 0.8 }}>Orders</Link>
-            <Link href="/" style={{ color: '#f5f2fb', opacity: 0.6 }}>← Back to store</Link>
+            <a href={STORE_URL} style={{ color: '#f5f2fb', opacity: 0.6 }}>← Back to store</a>
           </nav>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
