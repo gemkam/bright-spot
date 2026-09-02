@@ -24,6 +24,7 @@
 const GEMINI_MODELS = ['gemini-3.6-flash', 'gemini-2.5-flash'];
 
 async function callGemini(model, system, contents) {
+  
   return fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${process.env.GEMINI_API_KEY}`,
     {
