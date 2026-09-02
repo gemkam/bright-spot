@@ -648,6 +648,11 @@
       width:46px; height:46px; border-radius:14px;
     }
     .search-toggle svg, .cart-toggle svg{ width:20px; height:20px; }
+
+    /* reserve clearance so page text never runs under the fixed
+       search/cart column, regardless of English or Urdu (RTL) layout */
+    .wrap{ padding-right:78px; padding-left:22px; }
+    body.lang-ur .wrap{ padding-left:22px; padding-right:78px; }
   }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -774,7 +779,7 @@
     </video>
   </div>
   <canvas id="emberCanvas"></canvas>
-  <div class="scroll-cue"><span>SCROLL</span><span class="line"></span></div>
+  <div class="scroll-cue"><span data-i18n="hero_scroll">SCROLL</span><span class="line"></span></div>
 </section>
 
 <section class="hero-text-section">
@@ -1794,7 +1799,7 @@ const I18N = {
     nav_faq: "🎙 Talking FAQ", nav_fashion: "Fashion", nav_electronics: "Electronics",
     nav_beauty: "Beauty", nav_home: "Home &amp; Kitchen", nav_kids: "Kids &amp; Baby",
     nav_wellness: "Wellness", nav_contact: "Contact",
-    hero_kicker: "MULTAN, PAKISTAN — CASH ON DELIVERY",
+    hero_kicker: "MULTAN, PAKISTAN — CASH ON DELIVERY", hero_scroll: "SCROLL",
     hero_h1: "Everything your home needs, <em>delivered across Multan.</em>",
     hero_lede: "Home &amp; kitchen, beauty, electronics, and fashion — all in one place. Browse the collection below and order directly on WhatsApp, no account needed.",
     hero_btn_shop: "Start Shopping", hero_btn_wa: "Order on WhatsApp",
@@ -1828,7 +1833,7 @@ const I18N = {
     nav_faq: "🎙 آواز والے سوالات", nav_fashion: "فیشن", nav_electronics: "الیکٹرانکس",
     nav_beauty: "بیوٹی", nav_home: "ہوم اینڈ کچن", nav_kids: "بچے اور بیبی",
     nav_wellness: "صحت", nav_contact: "رابطہ",
-    hero_kicker: "ملتان، پاکستان — کیش آن ڈیلیوری",
+    hero_kicker: "ملتان، پاکستان — کیش آن ڈیلیوری", hero_scroll: "سکرول کریں",
     hero_h1: "آپ کے گھر کی ہر ضرورت، <em>ملتان بھر میں ڈیلیوری۔</em>",
     hero_lede: "ہوم اینڈ کچن، بیوٹی، الیکٹرانکس اور فیشن — سب ایک جگہ۔ نیچے کلیکشن دیکھیں اور واٹس ایپ پر براہ راست آرڈر کریں، کسی اکاؤنٹ کی ضرورت نہیں۔",
     hero_btn_shop: "خریداری شروع کریں", hero_btn_wa: "واٹس ایپ پر آرڈر کریں",
