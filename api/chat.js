@@ -2,6 +2,12 @@
 // This runs on Vercel's servers, not in the customer's browser — so your
 // GEMINI_API_KEY never gets exposed.
 //
+// Uses gemini-3.6-flash (current stable GA model as of Sep 2026).
+// Gemini 1.5 models are fully shut down; Gemini 2.5 models are scheduled
+// to shut down Oct 16, 2026 — if this ever 404s again, check
+// https://ai.google.dev/gemini-api/docs/models for the current model name
+// and swap it into the URL below.
+//
 // SETUP (all free, no card required):
 // 1. Go to https://aistudio.google.com/apikey and sign in with Google
 // 2. Click "Create API key" — copy it
@@ -19,7 +25,6 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  
   const { messages, system } = req.body;
 
   if (!messages || !Array.isArray(messages)) {
@@ -35,7 +40,7 @@ export default async function handler(req, res) {
     }));
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
