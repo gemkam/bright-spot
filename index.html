@@ -6,7 +6,7 @@
 <title>Bright Spot — Multan's Online Marketplace</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Jost:wght@300;400;500;600&family=Noto+Nastaliq+Urdu:wght@500;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --ink:#ffffff;
@@ -76,6 +76,12 @@
   .navlinks a{ position:relative; padding-bottom:4px; transition:color .3s; }
   .navlinks a:hover{ color:var(--neon-bright); }
   .navlinks a::after{ content:''; position:absolute; left:0; bottom:0; width:0; height:1px; background:var(--neon-bright); transition:width .35s ease; }
+  .faq-nav-link{
+    border:1px solid var(--neon); border-radius:20px; padding:5px 14px !important;
+    color:var(--neon-bright) !important; font-size:0.8rem !important; white-space:nowrap;
+  }
+  .faq-nav-link::after{ display:none; }
+  .faq-nav-link:hover{ background:rgba(249,115,22,0.12); }
   .navlinks a:hover::after{ width:100%; }
   .nav-cta{
     display:flex; align-items:center; gap:8px; border:1px solid var(--neon-bright); padding:9px 18px;
@@ -127,6 +133,18 @@
   }
   @media(max-width:768px){ .cat-video{ height:180px; } }
   .hero-text-section{ background:var(--ink); padding:56px 0 60px; text-align:center; }
+
+  /* ================= PER-CATEGORY DAZZLING GRADIENTS ================= */
+  /* Each category has its own multi-stop gradient (set as --cat-gradient on
+     its section/card). This keyframe slowly drifts the gradient through
+     left, right, top, and bottom — a slow shimmer, not a flashy strobe. */
+  @keyframes dazzleShift{
+    0%   { background-position:0% 50%; }
+    25%  { background-position:100% 50%; }
+    50%  { background-position:50% 0%; }
+    75%  { background-position:50% 100%; }
+    100% { background-position:0% 50%; }
+  }
   .hero-text-section .wrap{ opacity:0; transform:translateY(16px); animation:riseIn .9s ease .15s forwards; }
   .kicker{
     font-size:0.78rem; letter-spacing:0.16em; color:var(--neon); display:flex; align-items:center;
@@ -171,6 +189,56 @@
 
   /* ================= OUR COLLECTIONS ================= */
   .collections-section{ background:var(--panel); padding:90px 0; text-align:center; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+
+  /* ================= TALKING FAQ ================= */
+  .faq-section{ text-align:center; scroll-margin-top:90px; }
+  .faq-title{ font-size:clamp(1.8rem, 3.4vw, 2.6rem); color:var(--ivory); margin-top:14px; }
+  .faq-subtitle{ color:var(--ivory-dim); font-size:0.95rem; margin-top:10px; margin-bottom:44px; }
+  .faq-grid{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px;
+    max-width:1080px; margin:0 auto;
+  }
+  .faq-btn{
+    position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    min-height:150px; padding:20px 16px; overflow:hidden;
+    background:#fff; border:1px solid var(--line); border-radius:10px;
+    cursor:pointer; font-family:inherit; width:100%;
+    box-shadow:0 2px 10px rgba(194,65,12,0.05);
+    transition:border-color .3s, box-shadow .3s, transform .3s;
+  }
+  .faq-btn:hover{ border-color:#C2410C; box-shadow:0 8px 24px rgba(194,65,12,0.15); transform:translateY(-3px); }
+
+  .faq-icon{
+    flex-shrink:0; width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:rgba(194,65,12,0.09); color:#C2410C; font-size:1.15rem;
+    transition:opacity .35s ease, transform .35s ease;
+  }
+  .faq-btn.playing .faq-icon{ background:#C2410C; color:#fff; animation:faqPulse 1s ease-in-out infinite; }
+
+  .faq-question-ur{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center; text-align:center;
+    padding:18px 16px; font-family:'Noto Nastaliq Urdu', serif; font-weight:700; font-size:1.15rem; line-height:2;
+    color:#9A3412; direction:rtl; background:#fff;
+    opacity:0; transform:translateY(8px); transition:opacity .35s ease, transform .35s ease; pointer-events:none;
+  }
+  @media (hover: hover){
+    .faq-btn:hover .faq-icon{ opacity:0; transform:scale(0.7); }
+    .faq-btn:hover .faq-question-ur{ opacity:1; transform:translateY(0); }
+  }
+  /* touch devices: no hover, so show the question directly instead of hiding it behind a gesture that doesn't exist */
+  @media (hover: none){
+    .faq-icon{ display:none; }
+    .faq-question-ur{ position:static; opacity:1; transform:none; padding:6px 4px; }
+  }
+
+  .faq-status{
+    position:absolute; bottom:10px; left:0; right:0; text-align:center;
+    font-family:'Jost',sans-serif; font-size:0.68rem; color:var(--ivory-dim); letter-spacing:0.03em;
+  }
+  .faq-btn.unavailable{ cursor:not-allowed; opacity:0.6; }
+  .faq-btn.unavailable .faq-question-ur{ color:#c2410c99; }
+  .faq-btn.unavailable:hover{ transform:none; box-shadow:0 2px 10px rgba(194,65,12,0.05); border-color:var(--line); }
+  @keyframes faqPulse{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.12); } }
   .collections-section .kicker{ justify-content:center; }
   .collections-section h2{ font-size:clamp(1.8rem, 3.4vw, 2.6rem); color:var(--ivory); margin-top:14px; margin-bottom:44px; }
   .collections-grid{
@@ -211,7 +279,12 @@
     .collection-card{ aspect-ratio:1/1; }
   }
   .collection-card .label h3{ font-size:1.15rem; color:#f5f2fb; font-weight:700; font-family:'Sora',sans-serif; }
-  .collection-card .label span{ font-size:0.78rem; color:var(--cat-accent, #FB923C); display:block; margin-top:3px; }
+  .collection-card .label span{
+    font-size:0.78rem; display:block; margin-top:3px;
+    background:var(--cat-gradient-bright, #FB923C); background-size:300% 300%;
+    -webkit-background-clip:text; background-clip:text; color:transparent; -webkit-text-fill-color:transparent;
+    animation:dazzleShift 9s ease-in-out infinite;
+  }
 
   /* ================= SCROLL REVEAL ================= */
   .reveal{ opacity:0; transform:translateY(24px); transition:opacity 0.7s ease, transform 0.7s ease; }
@@ -220,10 +293,20 @@
   .cat-section{ border-top:1px solid var(--line); scroll-margin-top:90px; }
   .cat-section:nth-child(odd){ background:var(--panel); }
   .cat-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:24px; margin-bottom:56px; flex-wrap:wrap; }
-  .cat-head .kicker{ justify-content:flex-start; margin-bottom:14px; color:var(--cat-accent, var(--neon)); }
-  .cat-head .kicker::before{ background:var(--cat-accent, var(--neon)); }
+  .cat-head .kicker{
+    justify-content:flex-start; margin-bottom:14px;
+    background:var(--cat-gradient, var(--neon)); background-size:300% 300%;
+    -webkit-background-clip:text; background-clip:text; color:transparent; -webkit-text-fill-color:transparent;
+    animation:dazzleShift 9s ease-in-out infinite;
+  }
+  .cat-head .kicker::before{ background:var(--cat-gradient, var(--cat-accent, var(--neon))); background-size:300% 300%; animation:dazzleShift 9s ease-in-out infinite; }
   .cat-head .kicker::after{ display:none; }
-  .cat-head h2{ font-size:clamp(1.9rem, 3.4vw, 2.6rem); color:var(--ivory); }
+  .cat-head h2{
+    font-size:clamp(1.9rem, 3.4vw, 2.6rem);
+    background:var(--cat-gradient, var(--ivory)); background-size:300% 300%;
+    -webkit-background-clip:text; background-clip:text; color:transparent; -webkit-text-fill-color:transparent;
+    animation:dazzleShift 9s ease-in-out infinite;
+  }
   .cat-head p{ color:var(--ivory-dim); max-width:380px; font-size:0.95rem; line-height:1.6; }
 
   .product-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 260px)); gap:18px; justify-content:center; }
@@ -237,6 +320,11 @@
     border:1px solid var(--cat-accent, var(--line)); overflow:hidden; background:var(--panel);
     transition:opacity 0.5s ease, transform 0.5s ease;
     display:flex; flex-direction:column;
+  }
+  .flip-front::before{
+    content:''; position:absolute; top:0; left:0; right:0; height:4px; z-index:3;
+    background:var(--cat-gradient, var(--cat-accent, var(--neon))); background-size:300% 300%;
+    animation:dazzleShift 9s ease-in-out infinite;
   }
   .flip-front{ opacity:1; transform:scale(1); z-index:2; pointer-events:auto; }
   .flip-back{ opacity:0; transform:scale(1.05); z-index:1; pointer-events:none; }
@@ -436,6 +524,7 @@
       <svg class="sparkle sparkle-2" viewBox="0 0 24 24" fill="#FB923C"><path d="M12 0l1.8 7.2L21 9l-7.2 1.8L12 18l-1.8-7.2L3 9l7.2-1.8L12 0z"/></svg>
     </a>
     <div class="navlinks">
+      <a href="#faq" class="faq-nav-link">🎙 Talking FAQ</a>
       <a href="#fashion">Fashion</a>
       <a href="#electronics">Electronics</a>
       <a href="#beauty">Beauty</a>
@@ -445,7 +534,7 @@
       <a href="#contact">Contact</a>
     </div>
     <div style="display:flex; align-items:center; gap:14px;">
-      <a class="nav-cta" href="https://wa.me/923001234567?text=Hi%20Bright%20Spot%2C%20I%27d%20like%20to%20know%20more" target="_blank" rel="noopener">
+      <a class="nav-cta wa-link" href="https://wa.me/923001234567?text=Hi%20Bright%20Spot%2C%20I%27d%20like%20to%20know%20more" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.6-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1s-.7.8-.9 1-.3.2-.6.1a6.7 6.7 0 0 1-2-1.2 7.4 7.4 0 0 1-1.4-1.7c-.1-.2 0-.4.1-.5s.3-.3.4-.5a.6.6 0 0 0 .1-.5c0-.2-.6-1.5-.8-2s-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.6 4.1c.6.3 1.1.4 1.5.5a3.6 3.6 0 0 0 1.6.1 2.6 2.6 0 0 0 1.7-1.2 2.1 2.1 0 0 0 .1-1.2c-.1-.1-.2-.2-.5-.3z"/></svg>
         WhatsApp
       </a>
@@ -514,6 +603,7 @@
 </div>
 
 <div class="mobile-menu" id="mobileMenu">
+  <a href="#faq" style="font-size:1.1rem;">🎙 Talking FAQ</a>
   <a href="#fashion">Fashion</a>
   <a href="#electronics">Electronics</a>
   <a href="#beauty">Beauty</a>
@@ -521,13 +611,13 @@
   <a href="#kids-baby">Kids &amp; Baby</a>
   <a href="#health-wellness">Wellness</a>
   <a href="#contact">Contact</a>
-  <a class="btn btn-solid" href="https://wa.me/923001234567" target="_blank" rel="noopener"><span>Order on WhatsApp</span></a>
+  <a class="btn btn-solid wa-link" href="https://wa.me/923001234567" target="_blank" rel="noopener"><span>Order on WhatsApp</span></a>
 </div>
 
 <section class="hero" id="top">
   <div class="hero-video-layer">
     <video autoplay muted loop playsinline preload="auto">
-      <source src="hero.mp4" type="video/mp4">
+      <source id="heroVideoSource" src="hero.mp4" type="video/mp4">
     </video>
   </div>
   <canvas id="emberCanvas"></canvas>
@@ -537,11 +627,11 @@
 <section class="hero-text-section">
   <div class="wrap">
     <div class="kicker">MULTAN, PAKISTAN — CASH ON DELIVERY</div>
-    <h1>Everything your home needs, <em>delivered across Multan.</em></h1>
-    <p class="lede">Home &amp; kitchen, beauty, electronics, and fashion — all in one place. Browse the collection below and order directly on WhatsApp, no account needed.</p>
+    <h1 id="heroHeadline">Everything your home needs, <em>delivered across Multan.</em></h1>
+    <p class="lede" id="heroSubtext">Home &amp; kitchen, beauty, electronics, and fashion — all in one place. Browse the collection below and order directly on WhatsApp, no account needed.</p>
     <div class="hero-actions">
       <a href="#fashion" class="btn btn-solid"><span>Start Shopping</span></a>
-      <a href="https://wa.me/923001234567?text=Hi%20Bright%20Spot%2C%20I%27d%20like%20to%20place%20an%20order" target="_blank" rel="noopener" class="btn btn-ghost">Order on WhatsApp</a>
+      <a href="https://wa.me/923001234567?text=Hi%20Bright%20Spot%2C%20I%27d%20like%20to%20place%20an%20order" target="_blank" rel="noopener" class="btn btn-ghost wa-link">Order on WhatsApp</a>
     </div>
     <div class="hero-stats">
       <div><div class="num" data-count="6">0</div><div class="lbl">categories</div></div>
@@ -561,13 +651,22 @@
 
 <div id="categoriesRoot"></div>
 
+<section class="section faq-section reveal" id="faq">
+  <div class="wrap">
+    <div class="kicker" style="justify-content:center;">🎙 TALKING FAQ</div>
+    <h2 class="faq-title">Tap a question, hear the answer</h2>
+    <p class="faq-subtitle">Recorded voice answers in Urdu — no reading required.</p>
+    <div class="faq-grid" id="faqGrid"></div>
+  </div>
+</section>
+
 <section class="section contact" id="contact">
   <div class="wrap contact-grid">
     <div class="contact-info">
       <div class="kicker" style="justify-content:flex-start;">VISIT OR WRITE</div>
       <h2 style="margin-top:16px; font-size:clamp(1.9rem,3.2vw,2.4rem); margin-bottom:34px;">Let's get your order sorted.</h2>
       <div class="item"><div class="label">LOCATION</div><div class="val">Multan, Punjab, Pakistan</div></div>
-      <div class="item"><div class="label">WHATSAPP</div><a class="val" href="https://wa.me/923001234567" target="_blank" rel="noopener">+92 300 1234567</a></div>
+      <div class="item"><div class="label">WHATSAPP</div><a class="val wa-link" href="https://wa.me/923001234567" target="_blank" rel="noopener">+92 300 1234567</a></div>
       <div class="item"><div class="label">EMAIL</div><a class="val" href="mailto:hello@brightspot.pk">hello@brightspot.pk</a></div>
       <div class="item"><div class="label">HOURS</div><div class="val">Mon–Sat, 10:00 – 22:00</div></div>
     </div>
@@ -596,12 +695,12 @@
   </div>
 </footer>
 
-<a class="wa-float" href="https://wa.me/923001234567?text=Hi%20Bright%20Spot%2C%20I%27d%20like%20to%20know%20more" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
+<a class="wa-float wa-link" href="https://wa.me/923001234567?text=Hi%20Bright%20Spot%2C%20I%27d%20like%20to%20know%20more" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
   <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.6-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1s-.7.8-.9 1-.3.2-.6.1a6.7 6.7 0 0 1-2-1.2 7.4 7.4 0 0 1-1.4-1.7c-.1-.2 0-.4.1-.5s.3-.3.4-.5a.6.6 0 0 0 .1-.5c0-.2-.6-1.5-.8-2s-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.6 4.1c.6.3 1.1.4 1.5.5a3.6 3.6 0 0 0 1.6.1 2.6 2.6 0 0 0 1.7-1.2 2.1 2.1 0 0 0 .1-1.2c-.1-.1-.2-.2-.5-.3z"/></svg>
 </a>
 
 <script>
-const WA_NUMBER = "923001234567"; // TODO: replace with the client's real WhatsApp number
+let WA_NUMBER = "923001234567"; // overridden below if the admin sets a custom number in Power Editor
 const PRODUCTS = {}; // populated as product cards render, keyed by productId
 const productIcons = {
   phonecase: `<rect x="6" y="3" width="12" height="18" rx="2.5" stroke="currentColor" stroke-width="1.4" fill="none"/><circle cx="12" cy="17.5" r="1" fill="currentColor"/>`,
@@ -738,6 +837,26 @@ const categories = [
   },
 ];
 
+const CAT_GRADIENTS = {
+  fashion:          "linear-gradient(135deg, #9A3412, #EA580C, #C2410C, #EA580C, #9A3412)",
+  electronics:      "linear-gradient(135deg, #1E3A8A, #2563EB, #1D4ED8, #2563EB, #1E3A8A)",
+  beauty:           "linear-gradient(135deg, #92400E, #D97706, #B45309, #D97706, #92400E)",
+  "home-kitchen":   "linear-gradient(135deg, #14532D, #16A34A, #2E7D32, #16A34A, #14532D)",
+  "kids-baby":      "linear-gradient(135deg, #9D174D, #DB2777, #BE185D, #DB2777, #9D174D)",
+  "health-wellness":"linear-gradient(135deg, #155E75, #0891B2, #0E7490, #0891B2, #155E75)",
+};
+// Brighter variant of the same per-category hues, for text sitting on dark
+// photo overlays (collection cards, video banner labels) — the dark-toned
+// set above is tuned for white backgrounds and would be unreadable here.
+const CAT_GRADIENTS_BRIGHT = {
+  fashion:          "linear-gradient(135deg, #FDBA74, #FB923C, #F97316, #FB923C, #FDBA74)",
+  electronics:      "linear-gradient(135deg, #93C5FD, #60A5FA, #3B82F6, #60A5FA, #93C5FD)",
+  beauty:           "linear-gradient(135deg, #FCD34D, #FBBF24, #F59E0B, #FBBF24, #FCD34D)",
+  "home-kitchen":   "linear-gradient(135deg, #86EFAC, #4ADE80, #22C55E, #4ADE80, #86EFAC)",
+  "kids-baby":      "linear-gradient(135deg, #F9A8D4, #F472B6, #EC4899, #F472B6, #F9A8D4)",
+  "health-wellness":"linear-gradient(135deg, #67E8F9, #22D3EE, #06B6D4, #22D3EE, #67E8F9)",
+};
+
 // ---------- Our Collections (one dual-image card per category) ----------
 const collectionsRoot = document.getElementById('collectionsRoot');
 collectionsRoot.innerHTML = categories.map(cat => {
@@ -745,7 +864,7 @@ collectionsRoot.innerHTML = categories.map(cat => {
   const img1 = cover?.img1 || '';
   const img2 = cover?.img2 || img1;
   return `
-    <a href="#${cat.id}" class="collection-card" style="--cat-accent:${cat.accent}">
+    <a href="#${cat.id}" class="collection-card" style="--cat-accent:${cat.accent}; --cat-gradient:${CAT_GRADIENTS[cat.id] || cat.accent}; --cat-gradient-bright:${CAT_GRADIENTS_BRIGHT[cat.id] || cat.accent};">
       <img class="front" src="${img1}" alt="${cat.label}" loading="lazy">
       <img class="back" src="${img2}" alt="" loading="lazy">
       <div class="label">
@@ -771,7 +890,9 @@ categories.forEach(cat=>{
   const section = document.createElement('section');
   section.className = 'section cat-section';
   section.id = cat.id;
-  section.style.setProperty('--cat-accent', cat.accent);
+section.style.setProperty('--cat-accent', cat.accent);
+section.style.setProperty('--cat-gradient', CAT_GRADIENTS[cat.id] || cat.accent);
+section.style.setProperty('--cat-gradient-bright', CAT_GRADIENTS_BRIGHT[cat.id] || cat.accent);
   const grid = cat.products.map((p, idx)=>{
     const productId = `${cat.id}-${idx}`;
     PRODUCTS[productId] = { name:p.name, note:p.note, price:p.price, img:p.img1 };
@@ -866,34 +987,200 @@ const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // manage in the dashboard. Populated once below; used by checkout.
 let productIdByName = {};
 
-// ---------- live "Hidden" status from the admin dashboard ----------
-// The product catalog above is static (baked into this file), but a product's
-// visibility (Add to Cart / WhatsApp enabled or disabled) is checked live
-// against Supabase, so toggling "Hidden" in the admin dashboard takes effect
-// on this page without needing to redeploy the storefront.
-(async function applyLiveProductVisibility(){
+// ---------- live product data from the admin dashboard ----------
+// The product catalog above is static (baked into this file), but visibility
+// ("Hidden" toggle), price, and photos are all checked live against Supabase,
+// so Power Editor / Product edits take effect on this page without needing
+// to redeploy the storefront.
+(async function applyLiveProductData(){
   try {
-    const { data, error } = await sbClient.from('products').select('id, name, is_active');
+    const { data, error } = await sbClient.from('products').select('id, name, is_active, price_pkr, image_front, image_back');
     if (error || !data) return;
 
-    const visibilityByName = {};
+    const byName = {};
     data.forEach(row => {
-      visibilityByName[row.name] = row.is_active;
+      byName[row.name] = row;
       productIdByName[row.name] = row.id;
     });
 
     document.querySelectorAll('.flip-card[data-product-name]').forEach(card => {
       const name = card.dataset.productName;
-      if (Object.prototype.hasOwnProperty.call(visibilityByName, name) && visibilityByName[name] === false){
+      const row = byName[name];
+      if (!row) return;
+
+      // Hidden / visible
+      if (row.is_active === false){
         card.classList.add('product-unavailable');
         const badge = card.querySelector('.unavailable-badge');
         if (badge) badge.style.display = 'block';
       }
+
+      // Live price — update the on-card display AND the cart's price lookup,
+      // so an admin's price change is reflected everywhere immediately.
+      if (row.price_pkr != null){
+        const formattedPrice = Number(row.price_pkr).toLocaleString();
+        const priceEl = card.querySelector('.flip-back .price');
+        if (priceEl) priceEl.innerHTML = `${formattedPrice}<span> PKR</span>`;
+
+        // Update PRODUCTS[] used by the cart — find the entry by matching name
+        // (product IDs here are category-slug-index, not database UUIDs).
+        Object.keys(PRODUCTS).forEach(pid => {
+          if (PRODUCTS[pid].name === name) PRODUCTS[pid].price = formattedPrice;
+        });
+      }
+
+      // Live photos
+      if (row.image_front){
+        const frontImg = card.querySelector('.flip-front img');
+        if (frontImg && frontImg.src !== row.image_front) frontImg.src = row.image_front;
+      }
+      if (row.image_back){
+        const backImg = card.querySelector('.flip-back img');
+        if (backImg && backImg.src !== row.image_back) backImg.src = row.image_back;
+      }
     });
   } catch (e) {
     // If Supabase is unreachable for any reason, the storefront still works
-    // normally with every product enabled — this check only ever restricts,
-    // never breaks, the page.
+    // normally with its original static data — this check only ever
+    // enhances the page, never breaks it.
+  }
+})();
+
+// ---------- live site settings from Power Editor (hero video, text, WhatsApp) ----------
+(async function applyLiveSiteSettings(){
+  try {
+    const { data, error } = await sbClient.from('site_settings').select('*').eq('id', 1).single();
+    if (error || !data) return;
+
+    if (data.hero_video_url){
+      const source = document.getElementById('heroVideoSource');
+      if (source){
+        source.src = data.hero_video_url;
+        const video = source.closest('video');
+        if (video){ video.load(); video.play().catch(()=>{}); }
+      }
+    }
+
+    if (data.hero_headline){
+      const headline = document.getElementById('heroHeadline');
+      if (headline) headline.textContent = data.hero_headline;
+    }
+
+    if (data.hero_subtext){
+      const subtext = document.getElementById('heroSubtext');
+      if (subtext) subtext.textContent = data.hero_subtext;
+    }
+
+    if (data.whatsapp_number && data.whatsapp_number !== WA_NUMBER){
+      const oldNumber = WA_NUMBER;
+      WA_NUMBER = data.whatsapp_number;
+      document.querySelectorAll('.wa-link').forEach(el => {
+        el.setAttribute('href', el.getAttribute('href').replace(oldNumber, WA_NUMBER));
+      });
+    }
+  } catch (e) {
+    // Same principle as the visibility check above — this only enhances
+    // the page when it succeeds, never breaks it if Supabase is unreachable.
+  }
+})();
+
+// ---------- Talking FAQ ----------
+// Question buttons render immediately with a "Recording coming soon" state.
+// Once the matching row (same question text) exists in the `faqs` table with
+// a recorded audio_url, this fetch enables that button for playback — no
+// redeploy needed, same live-sync pattern as products.
+const FAQ_QUESTIONS = [
+  "آپ کی ڈیلیوری کا وقت کیا ہے؟",
+  "ملتان میں ڈیلیوری کتنے وقت میں ہوتی ہے؟",
+  "کیا آپ ملتان سے باہر بھی ڈیلیوری کرتے ہیں؟",
+  "آپ کی دکان کس وقت کھلتی اور بند ہوتی ہے؟",
+  "میں آرڈر کیسے کروں؟",
+  "کیا میں واٹس ایپ کے ذریعے آرڈر کر سکتا ہوں؟",
+  "کیا کم از کم آرڈر کی کوئی حد ہے؟",
+  "کیا میں آرڈر دینے کے بعد اسے منسوخ کر سکتا ہوں؟",
+  "میں اپنے آرڈر کو کیسے ٹریک کروں؟",
+  "کیا آپ کیش آن ڈیلیوری قبول کرتے ہیں؟",
+  "کیا کوئی آن لائن ادائیگی کا طریقہ بھی ہے؟",
+  "کیا ادائیگی ڈیلیوری سے پہلے کرنی ہے یا بعد میں؟",
+  "آپ کس قسم کی مصنوعات فروخت کرتے ہیں؟",
+  "کیا آپ کی مصنوعات اصلی ہیں؟",
+  "اگر کوئی پروڈکٹ اسٹاک میں نہ ہو تو کیا ہوگا؟",
+  "کیا آپ کے پاس کوئی رعایت یا سیل ہے؟",
+  "اگر مجھے پروڈکٹ پسند نہ آئے تو کیا میں اسے واپس کر سکتا ہوں؟",
+  "آپ کی تبدیلی کی پالیسی کیا ہے؟",
+  "اگر مجھے خراب پروڈکٹ ملے تو کیا کروں؟",
+  "میں کسٹمر سپورٹ سے کیسے رابطہ کروں؟",
+];
+
+let faqAudioEl = null;
+let faqCurrentPlayingBtn = null;
+
+function renderFaqButtons(){
+  const grid = document.getElementById('faqGrid');
+  if (!grid) return;
+  grid.innerHTML = FAQ_QUESTIONS.map((q, i) => `
+    <button class="faq-btn unavailable" data-faq-question="${q.replace(/"/g,'&quot;')}" data-faq-index="${i}">
+      <span class="faq-icon">▶</span>
+      <span class="faq-question-ur" dir="rtl">${q}</span>
+      <span class="faq-status">Coming soon</span>
+    </button>
+  `).join('');
+
+  grid.querySelectorAll('.faq-btn').forEach(btn => {
+    btn.addEventListener('click', () => playFaqAnswer(btn));
+  });
+}
+
+function playFaqAnswer(btn){
+  if (btn.classList.contains('unavailable')) return;
+  const url = btn.dataset.audioUrl;
+  if (!url) return;
+
+  // Stop whatever's currently playing (including re-clicking the same button)
+  if (faqAudioEl){
+    faqAudioEl.pause();
+    if (faqCurrentPlayingBtn) faqCurrentPlayingBtn.classList.remove('playing');
+    if (faqCurrentPlayingBtn === btn){
+      faqCurrentPlayingBtn = null;
+      faqAudioEl = null;
+      return; // acts as a toggle: clicking the playing button again just stops it
+    }
+  }
+
+  faqAudioEl = new Audio(url);
+  faqCurrentPlayingBtn = btn;
+  btn.classList.add('playing');
+  faqAudioEl.play().catch(()=>{});
+  faqAudioEl.addEventListener('ended', () => {
+    btn.classList.remove('playing');
+    faqCurrentPlayingBtn = null;
+    faqAudioEl = null;
+  });
+}
+
+(async function applyLiveFaqAudio(){
+  renderFaqButtons();
+  try {
+    const { data, error } = await sbClient.from('faqs').select('question, audio_url, is_active');
+    if (error || !data) return;
+
+    const audioByQuestion = {};
+    data.forEach(row => {
+      if (row.is_active !== false && row.audio_url) audioByQuestion[row.question] = row.audio_url;
+    });
+
+    document.querySelectorAll('.faq-btn').forEach(btn => {
+      const q = btn.dataset.faqQuestion;
+      if (audioByQuestion[q]){
+        btn.classList.remove('unavailable');
+        btn.dataset.audioUrl = audioByQuestion[q];
+        const status = btn.querySelector('.faq-status');
+        if (status) status.textContent = '';
+      }
+    });
+  } catch (e) {
+    // Buttons already render in their "coming soon" state by default —
+    // if Supabase is unreachable, that's exactly how they stay.
   }
 })();
 
