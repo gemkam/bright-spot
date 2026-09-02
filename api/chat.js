@@ -37,6 +37,7 @@ export default async function handler(req, res) {
     const geminiContents = messages.map(m => ({
       role: m.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: typeof m.content === 'string' ? m.content : JSON.stringify(m.content) }]
+      
     }));
 
     const response = await fetch(
