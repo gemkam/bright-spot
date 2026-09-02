@@ -49,6 +49,7 @@ export async function updateProduct(productId: string, data: ProductInput) {
     .eq('id', productId);
   if (error) throw error;
   revalidatePath('/admin');
+  revalidatePath('/admin/power-editor');
 }
 
 export async function addProduct(data: ProductInput) {
@@ -56,6 +57,26 @@ export async function addProduct(data: ProductInput) {
   const { error } = await supabase.from('products').insert(data);
   if (error) throw error;
   revalidatePath('/admin');
+  revalidatePath('/admin/power-editor');
+}
+
+// Partial update used by the Power Editor's quick price/photo grid.
+// Deliberately touches ONLY these 3 columns — never overwrites stock,
+// description, name, or category, even if the caller doesn't have those
+// values loaded (unlike updateProduct, which replaces the whole row).
+export async function quickUpdateProduct(productId: string, data: {
+  price_pkr: number;
+  image_front: string;
+  image_back: string;
+}) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from('products')
+    .update({ ...data, updated_at: new Date().toISOString() })
+    .eq('id', productId);
+  if (error) throw error;
+  revalidatePath('/admin');
+  revalidatePath('/admin/power-editor');
 }
 
 export async function deleteProduct(productId: string) {
@@ -63,6 +84,7 @@ export async function deleteProduct(productId: string) {
   const { error } = await supabase.from('products').delete().eq('id', productId);
   if (error) throw error;
   revalidatePath('/admin');
+  revalidatePath('/admin/power-editor');
 }
 
 // ---------- Orders ----------
@@ -79,4 +101,23 @@ export async function updateOrderStatus(orderId: string, newStatus: OrderStatus)
     .eq('id', orderId);
   if (error) throw error;
   revalidatePath('/admin/orders');
+}
+
+// ---------- Site settings (Power Editor) ----------
+
+export type SiteSettings = {
+  hero_video_url: string;
+  hero_headline: string;
+  hero_subtext: string;
+  whatsapp_number: string;
+};
+
+export async function updateSiteSettings(data: SiteSettings) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from('site_settings')
+    .update({ ...data, updated_at: new Date().toISOString() })
+    .eq('id', 1);
+  if (error) throw error;
+  revalidatePath('/admin/power-editor');
 }

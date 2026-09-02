@@ -32,6 +32,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <nav style={{ display: 'flex', gap: 18, fontSize: 14 }}>
             <Link href="/admin" style={{ color: '#f5f2fb', opacity: 0.8 }}>Products</Link>
             <Link href="/admin/orders" style={{ color: '#f5f2fb', opacity: 0.8 }}>Orders</Link>
+            <Link href="/admin/power-editor" style={{ color: '#FB923C' }}>⚡ Power Editor</Link>
             <a href={STORE_URL} style={{ color: '#f5f2fb', opacity: 0.6 }}>← Back to store</a>
           </nav>
         </div>
