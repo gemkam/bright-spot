@@ -2,11 +2,12 @@
 // This runs on Vercel's servers, not in the customer's browser — so your
 // GEMINI_API_KEY never gets exposed.
 //
-// Uses gemini-3.6-flash (current stable GA model as of Sep 2026).
-// Gemini 1.5 models are fully shut down; Gemini 2.5 models are scheduled
-// to shut down Oct 16, 2026 — if this ever 404s again, check
-// https://ai.google.dev/gemini-api/docs/models for the current model name
-// and swap it into the URL below.
+// Tries gemini-3.6-flash first (current stable GA model as of Sep 2026),
+// automatically falls back to gemini-2.5-flash if that fails (overloaded,
+// temporarily unavailable, etc.) — so a transient Google-side issue with
+// one model doesn't take down the whole chat. If BOTH ever start failing
+// with 404, check https://ai.google.dev/gemini-api/docs/models for
+// current model names and update the GEMINI_MODELS list below.
 //
 // SETUP (all free, no card required):
 // 1. Go to https://aistudio.google.com/apikey and sign in with Google
@@ -20,6 +21,23 @@
 // (the old Anthropic-style {content:[{type:'text', text:...}]} format),
 // so index.html does NOT need any changes — only this file changed.
 
+const GEMINI_MODELS = ['gemini-3.6-flash', 'gemini-2.5-flash'];
+
+async function callGemini(model, system, contents) {
+  return fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${process.env.GEMINI_API_KEY}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: system }] },
+        contents,
+        generationConfig: { responseMimeType: 'application/json' }
+      })
+    }
+  );
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -31,54 +49,45 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'messages array is required' });
   }
 
-  try {
-    // Convert the widget's Anthropic-style messages (role: user/assistant)
-    // into Gemini's expected format (role: user/model).
-    const geminiContents = messages.map(m => ({
-      role: m.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: typeof m.content === 'string' ? m.content : JSON.stringify(m.content) }]
-      
-    }));
+  const geminiContents = messages.map(m => ({
+    role: m.role === 'assistant' ? 'model' : 'user',
+    parts: [{ text: typeof m.content === 'string' ? m.content : JSON.stringify(m.content) }]
+  }));
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: system }] },
-          contents: geminiContents,
-          generationConfig: {
-            // Forces Gemini to return valid JSON directly — matches the
-            // strict JSON contract the widget's system prompt requires.
-            responseMimeType: 'application/json'
-          }
-        })
+  let lastError = null;
+
+  for (const model of GEMINI_MODELS) {
+    try {
+      const response = await callGemini(model, system, geminiContents);
+
+      if (!response.ok) {
+        const errText = await response.text();
+        console.error(`Gemini API error (${model}):`, errText);
+        lastError = { status: response.status, text: errText };
+        continue; // try the next model in the list
       }
-    );
 
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error('Gemini API error:', errText);
-      return res.status(response.status).json({ error: 'Upstream API error' });
+      const data = await response.json();
+      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+      if (!text) {
+        console.error(`Gemini returned no text (${model}). Full response:`, JSON.stringify(data));
+        lastError = { status: 502, text: 'Empty response' };
+        continue;
+      }
+
+      // Success — re-shape into the format the widget's frontend already
+      // parses, so index.html never needs to change.
+      return res.status(200).json({
+        content: [{ type: 'text', text }]
+      });
+
+    } catch (err) {
+      console.error(`Chat proxy exception (${model}):`, err);
+      lastError = { status: 500, text: String(err) };
     }
-
-    const data = await response.json();
-    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-
-    if (!text) {
-      console.error('Gemini returned no text. Full response:', JSON.stringify(data));
-      return res.status(502).json({ error: 'Empty response from Gemini' });
-    }
-
-    // Re-shape into the format the widget's frontend already parses —
-    // no changes needed on the index.html side.
-    return res.status(200).json({
-      content: [{ type: 'text', text }]
-    });
-
-  } catch (err) {
-    console.error('Chat proxy error:', err);
-    return res.status(500).json({ error: 'Server error' });
   }
+
+  // Every model in the list failed.
+  return res.status(lastError?.status || 500).json({ error: 'All Gemini models failed', detail: lastError?.text });
 }
