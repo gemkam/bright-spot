@@ -565,5 +565,506 @@ async function sendMessage(presetText){
 
 // Panel stays closed on load — scroll the page first to see the button float, then tap it to open
 </script>
+  <!--
+  BRIGHT SPOT — AI ASSISTANT WIDGET
+  ==================================
+  Paste this entire block just before the closing </body> tag
+  in your index.html. It works alongside your existing page —
+  it does not touch anything else on the site.
+
+  Requires: /api/chat.js deployed in the same Vercel project
+  (see api-chat-function.js in this package for that file).
+-->
+<style>
+  :root{
+    --bs-ink:#1B2A4A;
+    --bs-ink-soft:#3A4A6B;
+    --bs-sun:#F5A623;
+    --bs-sun-deep:#D98A0E;
+    --bs-cream:#FFF8ED;
+    --bs-paper:#FFFFFF;
+    --bs-line:#E7E0D2;
+    --bs-hot:#C1440E;
+    --bs-warm:#D98A0E;
+    --bs-cool:#7A8AA0;
+  }
+
+  /* ---- chat launcher ---- */
+  #bs-launcher{
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    width:58px;
+    height:58px;
+    border-radius:16px;
+    background:var(--bs-sun);
+    border:none;
+    box-shadow:0 6px 18px rgba(217,138,14,0.4);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:transform 0.15s ease;
+    z-index:9999;
+    box-sizing:border-box;
+  }
+  #bs-launcher:active{transform:scale(0.94);}
+  #bs-launcher svg{width:26px;height:26px;}
+  #bs-launcher .bs-dot{
+    position:absolute;
+    top:-3px;right:-3px;
+    width:14px;height:14px;
+    background:var(--bs-hot);
+    border-radius:50%;
+    border:2px solid var(--bs-cream);
+  }
+
+  /* ---- chat panel ---- */
+  #bs-panel{
+    position:fixed;
+    bottom:0;
+    right:0;
+    left:0;
+    max-width:400px;
+    margin:0 auto;
+    height:min(600px, 92vh);
+    background:var(--bs-paper);
+    border-radius:20px 20px 0 0;
+    box-shadow:0 -8px 40px rgba(27,42,74,0.25);
+    display:flex;
+    flex-direction:column;
+    transform:translateY(110%);
+    transition:transform 0.32s cubic-bezier(.22,.9,.32,1.1);
+    z-index:10000;
+    overflow:hidden;
+    font-family:'Segoe UI', system-ui, -apple-system, sans-serif;
+    box-sizing:border-box;
+  }
+  #bs-panel *{box-sizing:border-box;}
+  #bs-panel.bs-open{transform:translateY(0);}
+
+  .bs-panel-head{
+    background:var(--bs-ink);
+    color:var(--bs-cream);
+    padding:16px 18px 14px;
+    display:flex;
+    align-items:center;
+    gap:11px;
+    flex-shrink:0;
+  }
+  .bs-avatar{
+    width:36px;height:36px;
+    border-radius:10px;
+    background:var(--bs-sun);
+    display:flex;align-items:center;justify-content:center;
+    font-size:17px;
+    flex-shrink:0;
+  }
+  .bs-panel-head h2{
+    margin:0;
+    font-size:14.5px;
+    font-weight:600;
+  }
+  .bs-panel-head p{
+    margin:1px 0 0;
+    font-size:11.5px;
+    color:#C7CEDD;
+  }
+  #bs-close{
+    margin-left:auto;
+    background:none;border:none;
+    color:#C7CEDD;
+    font-size:20px;
+    cursor:pointer;
+    padding:4px 6px;
+    line-height:1;
+  }
+
+  #bs-msgs{
+    flex:1;
+    overflow-y:auto;
+    padding:16px 14px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    background:var(--bs-cream);
+  }
+  .bs-msg{
+    max-width:82%;
+    padding:10px 13px;
+    border-radius:14px;
+    font-size:13.5px;
+    line-height:1.45;
+    white-space:pre-wrap;
+  }
+  .bs-msg.bs-bot{
+    background:var(--bs-paper);
+    color:var(--bs-ink);
+    align-self:flex-start;
+    border-bottom-left-radius:4px;
+    box-shadow:0 1px 3px rgba(27,42,74,0.08);
+  }
+  .bs-msg.bs-user{
+    background:var(--bs-sun);
+    color:var(--bs-ink);
+    align-self:flex-end;
+    border-bottom-right-radius:4px;
+    font-weight:500;
+  }
+  .bs-msg.bs-typing{
+    display:flex;
+    gap:4px;
+    align-items:center;
+    padding:12px 14px;
+  }
+  .bs-msg.bs-typing span{
+    width:6px;height:6px;
+    border-radius:50%;
+    background:var(--bs-cool);
+    animation:bs-blink 1.2s infinite;
+  }
+  .bs-msg.bs-typing span:nth-child(2){animation-delay:0.2s;}
+  .bs-msg.bs-typing span:nth-child(3){animation-delay:0.4s;}
+  @keyframes bs-blink{0%,60%,100%{opacity:0.3;}30%{opacity:1;}}
+
+  .bs-lead-card{
+    align-self:stretch;
+    background:var(--bs-paper);
+    border:1.5px solid var(--bs-line);
+    border-radius:12px;
+    padding:12px 13px;
+    font-size:12px;
+  }
+  .bs-lead-card .bs-tag{
+    display:inline-block;
+    font-size:10.5px;
+    font-weight:700;
+    padding:3px 9px;
+    border-radius:999px;
+    margin-bottom:7px;
+  }
+  .bs-tag.bs-hot{background:#FBE4D8;color:var(--bs-hot);}
+  .bs-tag.bs-warm{background:#FBEBCC;color:var(--bs-warm);}
+  .bs-lead-card .bs-row{
+    display:flex;
+    justify-content:space-between;
+    padding:3px 0;
+    color:var(--bs-ink-soft);
+  }
+  .bs-lead-card .bs-row b{color:var(--bs-ink);font-weight:600;}
+  .bs-lead-card .bs-note{
+    margin-top:7px;
+    padding-top:7px;
+    border-top:1px dashed var(--bs-line);
+    color:var(--bs-ink-soft);
+    font-style:italic;
+  }
+
+  #bs-quick-replies{
+    display:flex;
+    flex-wrap:wrap;
+    gap:7px;
+    padding:0 14px 10px;
+    background:var(--bs-cream);
+    flex-shrink:0;
+  }
+  #bs-quick-replies button{
+    background:var(--bs-paper);
+    border:1.3px solid var(--bs-line);
+    color:var(--bs-ink);
+    font-size:12px;
+    padding:7px 12px;
+    border-radius:999px;
+    cursor:pointer;
+  }
+  #bs-quick-replies button:active{background:var(--bs-sun);border-color:var(--bs-sun);}
+
+  .bs-input-row{
+    display:flex;
+    gap:8px;
+    padding:12px 14px;
+    border-top:1px solid var(--bs-line);
+    background:var(--bs-paper);
+    flex-shrink:0;
+  }
+  .bs-input-row input{
+    flex:1;
+    border:1.5px solid var(--bs-line);
+    border-radius:12px;
+    padding:11px 13px;
+    font-size:13.5px;
+    outline:none;
+    font-family:inherit;
+  }
+  .bs-input-row input:focus{border-color:var(--bs-sun);}
+  .bs-input-row button{
+    background:var(--bs-ink);
+    color:var(--bs-cream);
+    border:none;
+    width:42px;
+    border-radius:12px;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .bs-input-row button:active{background:var(--bs-sun-deep);}
+  .bs-input-row button svg{width:18px;height:18px;}
+</style>
+
+<button id="bs-launcher" onclick="bsTogglePanel(true)">
+  <div class="bs-dot"></div>
+  <svg viewBox="0 0 24 24" fill="none" stroke="#1B2A4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+  </svg>
+</button>
+
+<div id="bs-panel">
+  <div class="bs-panel-head">
+    <div class="bs-avatar">🛍️</div>
+    <div>
+      <h2>Your AI Assistant</h2>
+      <p>Usually replies in seconds</p>
+    </div>
+    <button id="bs-close" onclick="bsTogglePanel(false)">✕</button>
+  </div>
+
+  <div id="bs-msgs"></div>
+
+  <div id="bs-quick-replies"></div>
+
+  <div class="bs-input-row">
+    <input type="text" id="bs-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter')bsSendMessage()">
+    <button onclick="bsSendMessage()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<script>
+// ── SUPABASE CONNECTION ──────────────────────────────────────────
+// Public URL + anon/publishable key — safe to expose in the browser,
+// Row Level Security on the products/categories tables controls what
+// this key can actually read (public SELECT only, no writes).
+const BS_SUPABASE_URL = "https://kcggcbenponibkzhstwi.supabase.co";
+const BS_SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtjZ2djYmVucG9uaWJremhzdHdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyNDI3MzEsImV4cCI6MjEwMzgxODczMX0.H0VBRcwwOZlzhNAlWYqCmC3qkycn1mP9fmj_kXtQ8MY";
+
+let BS_CATALOG = ""; // populated by bsLoadCatalog() before chat can start
+let BS_CATALOG_READY = false;
+
+async function bsLoadCatalog(){
+  try{
+    const [catRes, prodRes] = await Promise.all([
+      fetch(`${BS_SUPABASE_URL}/rest/v1/categories?select=id,label&order=sort_order.asc`, {
+        headers:{ apikey: BS_SUPABASE_KEY, Authorization: `Bearer ${BS_SUPABASE_KEY}` }
+      }),
+      fetch(`${BS_SUPABASE_URL}/rest/v1/products?select=name,note,description,price_pkr,stock_quantity,category_id&is_active=eq.true&order=name.asc`, {
+        headers:{ apikey: BS_SUPABASE_KEY, Authorization: `Bearer ${BS_SUPABASE_KEY}` }
+      })
+    ]);
+    const categories = await catRes.json();
+    const products = await prodRes.json();
+
+    const catLabel = {};
+    categories.forEach(c => catLabel[c.id] = c.label);
+
+    const byCategory = {};
+    products.forEach(p => {
+      const label = catLabel[p.category_id] || "Other";
+      if(!byCategory[label]) byCategory[label] = [];
+      const stockNote = p.stock_quantity <= 0 ? ", OUT OF STOCK" : "";
+      const extra = p.note ? `, ${p.note}` : "";
+      byCategory[label].push(`${p.name} (Rs ${Number(p.price_pkr).toLocaleString('en-PK')}${extra}${stockNote})`);
+    });
+
+    BS_CATALOG = Object.entries(byCategory)
+      .map(([label, items]) => `${label.toUpperCase()}: ${items.join(', ')}`)
+      .join('\n');
+
+    BS_CATALOG_READY = true;
+  }catch(err){
+    console.error("Bright Spot: failed to load catalog from Supabase", err);
+    BS_CATALOG = "CATALOG UNAVAILABLE — apologize and ask the customer to browse the page directly for now.";
+    BS_CATALOG_READY = true; // don't block chat forever on a failed fetch
+  }
+}
+
+// Kick off the fetch as soon as the page loads, so it's usually ready
+// before the customer opens the chat.
+bsLoadCatalog();
+
+function bsBuildSystemPrompt(){
+  return `You are the shopping assistant for Bright Spot, a home-based online marketplace serving Multan, Pakistan. Customers order via COD (cash on delivery) and checkout happens over WhatsApp.
+
+CATALOG (live from store inventory):
+${BS_CATALOG}
+
+YOUR TWO JOBS, every single turn:
+
+1. HELP THE CUSTOMER — answer questions about products, sizes, prices, availability, and recommend items from the catalog that fit what they describe. Be warm, brief, conversational (2-4 sentences max). If an item shows OUT OF STOCK, say so honestly and suggest an alternative from the catalog. If they ask for something not in the catalog, say so honestly.
+
+2. SILENTLY SCORE BUYING INTENT — after each customer message, judge intent based on: specificity (size/quantity/color mentioned), commitment language ("I want to order", "how do I pay", delivery city given), engagement (follow-up questions vs one-word replies), and vagueness ("just looking", no specifics even when asked).
+
+RESPONSE FORMAT — reply with ONLY valid JSON, no markdown fences, no preamble:
+{
+  "reply": "your conversational reply to the customer",
+  "quick_replies": ["short option 1", "short option 2", "short option 3"],
+  "lead_status": "hot" | "warm" | "browsing",
+  "lead_summary": "one short line for the seller, e.g. 'Wants Embroidered Suit size M, delivery to Multan, asked about COD' — only meaningful once you have real signal, otherwise empty string",
+  "signals": ["short phrase", "short phrase"]
+}
+
+Rules:
+- quick_replies should be 2-3 short natural next things the customer might tap (questions or answers depending on context), always relevant to the current moment in conversation.
+- lead_status starts as "browsing" until real signals appear. Only mark "hot" when there's clear purchase intent (specific item + size/qty + willingness to give delivery details or pay). "warm" = interested and specific but not yet ready to commit. "browsing" = vague or just exploring.
+- Keep replies natural and human, like a helpful shop owner, not a sales script.
+- Never break character or mention you are an AI.`;
+}
+
+let bsMessages = [];
+let bsLeadStatus = "browsing";
+
+function bsTogglePanel(open){
+  const panel = document.getElementById('bs-panel');
+  const launcher = document.getElementById('bs-launcher');
+  if(open){
+    panel.classList.add('bs-open');
+    launcher.style.display='none';
+    if(bsMessages.length===0) bsStartConversation();
+  } else {
+    panel.classList.remove('bs-open');
+    launcher.style.display='flex';
+  }
+}
+
+function bsStartConversation(){
+  bsAddBotMessage("Assalam-o-Alaikum! Welcome to Bright Spot 🌞 What are you shopping for today?");
+  bsRenderQuickReplies(["Fashion & clothes","Electronics","Home & kitchen"]);
+}
+
+function bsAddBotMessage(text){
+  const msgs = document.getElementById('bs-msgs');
+  const div = document.createElement('div');
+  div.className='bs-msg bs-bot';
+  div.textContent=text;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function bsAddUserMessage(text){
+  const msgs = document.getElementById('bs-msgs');
+  const div = document.createElement('div');
+  div.className='bs-msg bs-user';
+  div.textContent=text;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function bsAddTyping(){
+  const msgs = document.getElementById('bs-msgs');
+  const div = document.createElement('div');
+  div.className='bs-msg bs-bot bs-typing';
+  div.id='bs-typing-indicator';
+  div.innerHTML='<span></span><span></span><span></span>';
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function bsRemoveTyping(){
+  const el = document.getElementById('bs-typing-indicator');
+  if(el) el.remove();
+}
+
+function bsAddLeadCard(status, summary, signals){
+  if(!summary) return;
+  const msgs = document.getElementById('bs-msgs');
+  const div = document.createElement('div');
+  div.className='bs-lead-card';
+  const tagClass = status==='hot'?'bs-hot':'bs-warm';
+  const tagLabel = status==='hot'?'🔥 Hot Lead':'👀 Warm Lead';
+  div.innerHTML = `
+    <span class="bs-tag ${tagClass}">${tagLabel}</span>
+    <div class="bs-row"><span>Seller notified:</span><b>Yes</b></div>
+    <div class="bs-note">${summary}${signals && signals.length ? ' · Signals: '+signals.join(', ') : ''}</div>
+  `;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+
+  // TODO: this is where you'd trigger the WhatsApp notification to the
+  // seller — e.g. call your own /api/notify-seller endpoint here with
+  // { status, summary, signals }.
+}
+
+function bsRenderQuickReplies(options){
+  const container = document.getElementById('bs-quick-replies');
+  container.innerHTML='';
+  (options||[]).forEach(opt=>{
+    const btn = document.createElement('button');
+    btn.textContent = opt;
+    btn.onclick = ()=> bsSendMessage(opt);
+    container.appendChild(btn);
+  });
+}
+
+async function bsSendMessage(presetText){
+  const input = document.getElementById('bs-input');
+  const text = (presetText!==undefined ? presetText : input.value).trim();
+  if(!text) return;
+  input.value='';
+  bsRenderQuickReplies([]);
+  bsAddUserMessage(text);
+  bsMessages.push({role:'user', content:text});
+  bsAddTyping();
+
+  // If the Supabase fetch is still in flight (rare, only on a very fast
+  // first message), give it a brief moment rather than answering blind.
+  let waited = 0;
+  while(!BS_CATALOG_READY && waited < 3000){
+    await new Promise(r => setTimeout(r, 150));
+    waited += 150;
+  }
+
+  try{
+    // Calls YOUR OWN serverless function, not Anthropic directly.
+    // This keeps your API key safely on the server.
+    const response = await fetch("/api/chat", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({
+        system: bsBuildSystemPrompt(),
+        messages: bsMessages
+      })
+    });
+    const data = await response.json();
+    bsRemoveTyping();
+
+    const textBlock = data.content.find(b=>b.type==='text');
+    let parsed;
+    try{
+      const clean = textBlock.text.replace(/```json|```/g,'').trim();
+      parsed = JSON.parse(clean);
+    }catch(e){
+      parsed = {reply: textBlock.text, quick_replies:[], lead_status:bsLeadStatus, lead_summary:"", signals:[]};
+    }
+
+    bsMessages.push({role:'assistant', content: textBlock.text});
+
+    bsAddBotMessage(parsed.reply);
+    if(parsed.lead_status === 'hot' || parsed.lead_status === 'warm'){
+      bsLeadStatus = parsed.lead_status;
+      bsAddLeadCard(parsed.lead_status, parsed.lead_summary, parsed.signals);
+    }
+    bsRenderQuickReplies(parsed.quick_replies);
+
+  }catch(err){
+    bsRemoveTyping();
+    bsAddBotMessage("Sorry, I'm having trouble connecting right now. Please try again.");
+    console.error(err);
+  }
+}
+</script>
+
 </body>
+  
 </html>
