@@ -48,7 +48,7 @@
   }
   header.scrolled{ background:rgba(11,7,20,0.92); backdrop-filter:blur(8px); padding:13px 0; border-bottom:1px solid rgba(255,255,255,0.08); }
   nav.wrap{ display:flex; align-items:center; justify-content:space-between; }
-  .brandmark{ display:flex; align-items:center; gap:10px; font-family:'Sora', sans-serif; font-weight:700; font-size:1.3rem; letter-spacing:-0.01em; color:var(--ivory); }
+  .brandmark{ display:flex; align-items:center; gap:10px; font-family:'Sora', sans-serif; font-weight:700; font-size:1.3rem; letter-spacing:-0.01em; color:var(--ivory); white-space:nowrap; flex-shrink:0; }
   header .brandmark{ color:#f5f2fb; }
 
   .brandmark-sparkle{ position:relative; }
@@ -72,17 +72,24 @@
     50%{ opacity:1; transform:scale(1) rotate(25deg); }
   }
   .brandmark svg{ width:26px; height:26px; filter:drop-shadow(0 0 6px rgba(249,115,22,0.7)); }
-  .navlinks{ display:flex; gap:22px; font-size:0.85rem; color:rgba(245,242,251,0.7); }
-  .navlinks a{ position:relative; padding-bottom:4px; transition:color .3s; }
-  .navlinks a:hover{ color:var(--neon-bright); }
-  .navlinks a::after{ content:''; position:absolute; left:0; bottom:0; width:0; height:1px; background:var(--neon-bright); transition:width .35s ease; }
-  .faq-nav-link{
-    border:1px solid var(--neon); border-radius:20px; padding:5px 14px !important;
-    color:var(--neon-bright) !important; font-size:0.8rem !important; white-space:nowrap;
+  .navlinks{ display:flex; gap:8px; font-size:0.8rem; color:rgba(245,242,251,0.7); flex-wrap:wrap; }
+  .navlinks a{
+    position:relative; display:flex; align-items:center; height:38px; padding:0 14px; border-radius:10px;
+    background:#0a0a0a; border:1.5px solid #F97316; color:#F97316; font-weight:700; letter-spacing:0.02em;
+    box-shadow:0 0 8px rgba(249,115,22,0.6), 0 0 16px rgba(249,115,22,0.35), inset 0 0 6px rgba(249,115,22,0.15);
+    transition:box-shadow .2s ease, color .2s ease, transform .15s ease, border-color .2s ease;
+    white-space:nowrap;
   }
-  .faq-nav-link::after{ display:none; }
-  .faq-nav-link:hover{ background:rgba(249,115,22,0.12); }
-  .navlinks a:hover::after{ width:100%; }
+  .navlinks a:hover{
+    color:#FB923C; border-color:#FB923C; transform:scale(1.04);
+    box-shadow:0 0 12px rgba(251,146,60,0.9), 0 0 28px rgba(251,146,60,0.55), 0 0 44px rgba(251,146,60,0.25);
+  }
+  .navlinks a::after{ display:none; }
+  .faq-nav-link{
+    border-radius:10px !important; padding:0 14px !important;
+    color:#F97316 !important; font-size:0.8rem !important; white-space:nowrap;
+  }
+  .faq-nav-link:hover{ background:#0a0a0a; }
   .nav-cta{
     display:flex; align-items:center; gap:8px; height:38px; padding:0 18px; border-radius:10px;
     background:#0a0a0a; border:1.5px solid #F97316; color:#F97316; font-size:0.85rem; font-weight:700; letter-spacing:0.03em;
