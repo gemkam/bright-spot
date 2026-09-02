@@ -1064,9 +1064,12 @@ function generateOrderId(){
 // completes via PDF + WhatsApp — this is a best-effort sync, not a blocker.
 async function saveOrderToSupabase(order){
   try {
-    const { data: orderRow, error: orderError } = await sbClient
+    const orderUuid = crypto.randomUUID();
+
+    const { error: orderError } = await sbClient
       .from('orders')
       .insert({
+        id: orderUuid,
         order_number: order.orderId,
         customer_name: order.name,
         customer_phone: order.phone,
@@ -1076,14 +1079,12 @@ async function saveOrderToSupabase(order){
         subtotal_pkr: order.subtotal,
         payment_method: 'cod',
         status: 'pending',
-      })
-      .select('id')
-      .single();
+      });
 
-    if (orderError || !orderRow) return;
+    if (orderError) { console.error('Order save failed:', orderError); return; }
 
     const itemRows = order.items.map(item => ({
-      order_id: orderRow.id,
+      order_id: orderUuid,
       product_id: productIdByName[item.name] || null,
       product_name_snapshot: item.name,
       quantity: item.qty,
@@ -1091,9 +1092,10 @@ async function saveOrderToSupabase(order){
       line_total_pkr: item.lineTotal,
     }));
 
-    await sbClient.from('order_items').insert(itemRows);
+    const { error: itemsError } = await sbClient.from('order_items').insert(itemRows);
+    if (itemsError) console.error('Order items save failed:', itemsError);
   } catch (e) {
-    // Silently degrade — see comment above.
+    console.error('Order save exception:', e);
   }
 }
 
