@@ -786,6 +786,170 @@
     .wrap{ padding-right:78px; padding-left:22px; }
     body.lang-ur .wrap{ padding-left:22px; padding-right:78px; }
   }
+
+  /* ================================================================
+     TERMINAL / HUD SEARCH BOX
+     ================================================================ */
+  .search-panel{ font-family:'Jost', monospace; }
+  .search-input-row{ position:relative; }
+  .search-prompt{
+    color:#F97316; font-family:'Sora',monospace; font-size:1.05rem; font-weight:700;
+    text-shadow:0 0 8px rgba(249,115,22,0.8); flex-shrink:0;
+  }
+  .search-cursor{
+    display:inline-block; width:8px; height:1.1em; background:#F97316; margin-left:2px;
+    box-shadow:0 0 6px rgba(249,115,22,0.9); animation:cursorBlink 1s step-end infinite; vertical-align:middle;
+  }
+  @keyframes cursorBlink{ 0%,49%{ opacity:1;} 50%,100%{ opacity:0;} }
+  .search-panel::before{
+    content:''; position:absolute; left:0; right:0; top:0; height:2px;
+    background:linear-gradient(90deg, transparent, #FB923C, transparent);
+    animation:scanline 2.4s linear infinite; opacity:0.6; pointer-events:none;
+  }
+  @keyframes scanline{ 0%{ top:0; } 100%{ top:100%; } }
+  .search-hint{ font-family:'Jost',sans-serif; }
+
+  /* ================================================================
+     CLICK POP + SOUND-FEEDBACK VISUAL CUE
+     ================================================================ */
+  .click-pop{ animation:clickPop .3s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes clickPop{ 0%{ transform:scale(1); } 45%{ transform:scale(0.86); } 100%{ transform:scale(1); } }
+
+  /* ================================================================
+     PARTICLE / CONFETTI BURST
+     ================================================================ */
+  .spark-burst-layer{ position:fixed; inset:0; z-index:500; pointer-events:none; }
+  .spark-particle{
+    position:absolute; width:7px; height:7px; border-radius:50%; opacity:1;
+    will-change:transform, opacity;
+  }
+  .confetti-piece{
+    position:absolute; width:8px; height:12px; border-radius:2px; opacity:1;
+    will-change:transform, opacity;
+  }
+
+  /* ================================================================
+     QUICK-VIEW "X-RAY" GLASSMORPHISM MODAL
+     ================================================================ */
+  .qv-btn{
+    position:absolute; top:12px; right:46px; z-index:3; width:28px; height:28px; border-radius:50%;
+    background:rgba(11,7,20,0.5); border:1px solid rgba(255,255,255,0.35); display:flex;
+    align-items:center; justify-content:center; cursor:pointer; transition:transform .2s ease;
+  }
+  .qv-btn:hover{ transform:scale(1.1); }
+  .qv-btn svg{ width:14px; height:14px; color:#fff; }
+  .qv-overlay{
+    position:fixed; inset:0; z-index:450; background:rgba(2,2,4,0.75); backdrop-filter:blur(6px);
+    opacity:0; pointer-events:none; transition:opacity .3s ease;
+    display:flex; align-items:center; justify-content:center; padding:20px;
+  }
+  .qv-overlay.open{ opacity:1; pointer-events:auto; }
+  .qv-card{
+    width:100%; max-width:420px; border-radius:18px; padding:26px;
+    background:rgba(20,14,34,0.55); backdrop-filter:blur(18px) saturate(160%);
+    border:1px solid rgba(249,115,22,0.35);
+    box-shadow:0 0 40px rgba(249,115,22,0.18), 0 20px 60px rgba(0,0,0,0.5);
+    transform:translateY(-14px) scale(0.97); opacity:0; transition:transform .35s ease, opacity .3s ease;
+    position:relative; color:#f5f2fb;
+  }
+  .qv-overlay.open .qv-card{ transform:translateY(0) scale(1); opacity:1; }
+  .qv-close{ position:absolute; top:14px; right:16px; background:none; border:none; color:rgba(245,242,251,0.6); font-size:1.4rem; cursor:pointer; }
+  .qv-wire{ width:96px; height:96px; margin:0 auto 16px; animation:qvSpin 8s linear infinite; }
+  @keyframes qvSpin{ from{ transform:rotate3d(0.4,1,0.2,0deg);} to{ transform:rotate3d(0.4,1,0.2,360deg);} }
+  .qv-name{ font-family:'Sora',sans-serif; font-size:1.05rem; font-weight:700; text-align:center; margin-bottom:4px; }
+  .qv-price{ text-align:center; color:var(--cat-accent, var(--neon-bright)); font-family:'Sora',sans-serif; font-weight:700; margin-bottom:16px; }
+  .qv-features{ display:flex; flex-direction:column; gap:10px; }
+  .qv-feature{
+    display:flex; align-items:center; gap:10px; font-size:0.82rem; color:rgba(245,242,251,0.85);
+    padding:8px 12px; border-radius:10px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);
+    opacity:0; transform:translateX(-8px); animation:qvFeatureIn .4s ease forwards;
+  }
+  .qv-feature .qv-dot{ width:7px; height:7px; border-radius:50%; background:var(--cat-accent, var(--neon)); box-shadow:0 0 8px var(--cat-accent, var(--neon)); flex-shrink:0; }
+  @keyframes qvFeatureIn{ to{ opacity:1; transform:translateX(0); } }
+  .qv-actions{ display:flex; gap:10px; margin-top:18px; }
+  .qv-actions button{
+    flex:1; padding:11px; border-radius:10px; font-family:'Sora',sans-serif; font-weight:600; font-size:0.82rem; cursor:pointer;
+  }
+  .qv-add{ background:linear-gradient(120deg, #FB923C, #F97316); color:#fff; border:none; }
+  .qv-wa{ background:none; border:1px solid rgba(255,255,255,0.25); color:#f5f2fb; }
+
+  /* ================================================================
+     3D TILT — COLLECTIONS GRID
+     ================================================================ */
+  .collection-card{ transform-style:preserve-3d; transition:transform .15s ease-out; will-change:transform; }
+
+  /* ================================================================
+     FREE-DELIVERY PROGRESS BAR (cart drawer)
+     ================================================================ */
+  .free-delivery-bar{ margin-bottom:14px; }
+  .fdb-label{ font-size:0.72rem; color:var(--ivory-dim); margin-bottom:6px; display:flex; justify-content:space-between; }
+  .fdb-label b{ color:var(--neon-bright); }
+  .fdb-track{ height:8px; border-radius:6px; background:var(--panel-2); overflow:hidden; position:relative; }
+  .fdb-fill{
+    height:100%; border-radius:6px; width:0%; transition:width .5s cubic-bezier(.34,1.2,.64,1);
+    background:linear-gradient(90deg, #FB923C, #F97316, #FFD08A, #F97316);
+    background-size:300% 100%; animation:dazzleShift 4s ease-in-out infinite;
+    box-shadow:0 0 10px rgba(249,115,22,0.7);
+  }
+
+  /* ================================================================
+     WHATSAPP "VIP CHECKOUT" PREVIEW MODAL
+     ================================================================ */
+  .wa-preview-overlay{
+    position:fixed; inset:0; z-index:460; background:rgba(2,2,4,0.85); backdrop-filter:blur(6px);
+    opacity:0; pointer-events:none; transition:opacity .3s ease;
+    display:flex; align-items:center; justify-content:center; padding:20px;
+  }
+  .wa-preview-overlay.open{ opacity:1; pointer-events:auto; }
+  .wa-preview-card{
+    width:100%; max-width:400px; max-height:82vh; overflow-y:auto; border-radius:18px; padding:26px;
+    background:rgba(20,14,34,0.6); backdrop-filter:blur(18px) saturate(160%);
+    border:1px solid rgba(52,211,153,0.35);
+    box-shadow:0 0 40px rgba(52,211,153,0.15), 0 20px 60px rgba(0,0,0,0.5);
+    transform:translateY(16px) scale(0.97); opacity:0; transition:transform .35s cubic-bezier(.2,.9,.3,1.2), opacity .3s ease;
+    color:#f5f2fb;
+  }
+  .wa-preview-overlay.open .wa-preview-card{ transform:translateY(0) scale(1); opacity:1; }
+  .wa-preview-badge{
+    display:inline-flex; align-items:center; gap:6px; font-size:0.68rem; font-weight:700; letter-spacing:0.04em;
+    color:#34D399; background:rgba(52,211,153,0.12); border:1px solid rgba(52,211,153,0.3);
+    padding:4px 10px; border-radius:20px; margin-bottom:14px;
+  }
+  .wa-preview-title{ font-family:'Sora',sans-serif; font-size:1.1rem; font-weight:700; margin-bottom:4px; }
+  .wa-preview-ref{ font-size:0.78rem; color:rgba(245,242,251,0.55); margin-bottom:16px; }
+  .wa-preview-items{ display:flex; flex-direction:column; gap:8px; margin-bottom:14px; }
+  .wa-preview-item{
+    display:flex; justify-content:space-between; font-size:0.8rem; padding:8px 10px; border-radius:8px;
+    background:rgba(255,255,255,0.04);
+  }
+  .wa-preview-total{
+    display:flex; justify-content:space-between; font-family:'Sora',sans-serif; font-weight:700;
+    padding-top:12px; border-top:1px solid rgba(255,255,255,0.15); margin-bottom:18px;
+  }
+  .wa-preview-total .amt{ color:#34D399; }
+  .wa-preview-actions{ display:flex; gap:10px; }
+  .wa-preview-actions button{ flex:1; padding:12px; border-radius:10px; font-family:'Sora',sans-serif; font-weight:600; font-size:0.85rem; cursor:pointer; }
+  .wa-preview-send{ background:linear-gradient(120deg, #34D399, #10B981); color:#0b0714; border:none; }
+  .wa-preview-cancel{ background:none; border:1px solid rgba(255,255,255,0.25); color:#f5f2fb; }
+
+  /* ================================================================
+     LIVE STORE ACTIVITY TICKER (honest — real stock/category signals only)
+     ================================================================ */
+  .live-ticker{
+    position:fixed; left:20px; bottom:26px; z-index:80; max-width:270px;
+    display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:12px;
+    background:rgba(11,7,20,0.75); backdrop-filter:blur(10px); border:1px solid rgba(249,115,22,0.3);
+    box-shadow:0 0 16px rgba(249,115,22,0.15), 0 8px 24px rgba(0,0,0,0.35);
+    opacity:0; transform:translateY(8px); transition:opacity .5s ease, transform .5s ease;
+  }
+  .live-ticker.show{ opacity:1; transform:translateY(0); }
+  .live-ticker .lt-dot{
+    width:8px; height:8px; border-radius:50%; background:#4ADE80; flex-shrink:0;
+    box-shadow:0 0 8px #4ADE80; animation:ltPulse 1.6s ease-in-out infinite;
+  }
+  @keyframes ltPulse{ 0%,100%{ opacity:1;} 50%{ opacity:0.4;} }
+  .live-ticker .lt-text{ font-size:0.72rem; color:rgba(245,242,251,0.85); line-height:1.4; }
+  @media(max-width:768px){ .live-ticker{ display:none; } }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -828,8 +992,10 @@
 <div class="search-overlay" id="searchOverlay">
   <div class="search-panel">
     <div class="search-input-row">
+      <span class="search-prompt">›</span>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="searchInput" placeholder="Search products..." autocomplete="off" dir="auto" data-i18n-ph="search_placeholder">
+      <input type="text" id="searchInput" placeholder="Ask me anything... e.g. 'wireless earbuds under 2000'" autocomplete="off" dir="auto" data-i18n-ph="search_placeholder">
+      <span class="search-cursor" id="searchCursor"></span>
       <button class="search-close" id="searchClose" aria-label="Close search">×</button>
     </div>
     <div class="search-results" id="searchResults">
@@ -848,6 +1014,10 @@
     <div id="cartView">
       <div class="cart-items" id="cartItems"></div>
       <div class="cart-footer">
+        <div class="free-delivery-bar" id="freeDeliveryBar">
+          <div class="fdb-label"><span id="fdbText">Add items to see free delivery progress</span></div>
+          <div class="fdb-track"><div class="fdb-fill" id="fdbFill"></div></div>
+        </div>
         <div class="cart-subtotal"><span data-i18n="cart_subtotal">Subtotal</span><span id="cartSubtotal">0 PKR</span></div>
         <button class="btn btn-solid cart-checkout" id="cartCheckoutBtn"><span data-i18n="cart_checkout">Proceed to Checkout</span></button>
       </div>
@@ -1032,6 +1202,49 @@
   <div class="scb-info"><b id="stickyCartCount">0</b> item(s) · <span id="stickyCartSubtotal">0 PKR</span></div>
   <button onclick="document.getElementById('cartToggle').click()">View Cart</button>
 </div>
+
+<div class="qv-overlay" id="qvOverlay">
+  <div class="qv-card" id="qvCard">
+    <button class="qv-close" onclick="closeQuickView()">×</button>
+    <svg class="qv-wire" viewBox="0 0 96 96" fill="none" id="qvWireSvg">
+      <rect x="18" y="18" width="60" height="60" stroke="currentColor" stroke-width="1.4" rx="4"/>
+      <rect x="30" y="30" width="36" height="36" stroke="currentColor" stroke-width="1" rx="3" opacity="0.6"/>
+      <line x1="18" y1="18" x2="30" y2="30" stroke="currentColor" stroke-width="1" opacity="0.5"/>
+      <line x1="78" y1="18" x2="66" y2="30" stroke="currentColor" stroke-width="1" opacity="0.5"/>
+      <line x1="18" y1="78" x2="30" y2="66" stroke="currentColor" stroke-width="1" opacity="0.5"/>
+      <line x1="78" y1="78" x2="66" y2="66" stroke="currentColor" stroke-width="1" opacity="0.5"/>
+      <circle cx="48" cy="48" r="4" fill="currentColor"/>
+    </svg>
+    <div class="qv-name" id="qvName"></div>
+    <div class="qv-price" id="qvPrice"></div>
+    <div class="qv-features" id="qvFeatures"></div>
+    <div class="qv-actions">
+      <button class="qv-add" id="qvAddBtn">Add to Cart</button>
+      <button class="qv-wa" id="qvWaBtn">Ask on WhatsApp</button>
+    </div>
+  </div>
+</div>
+
+<div class="wa-preview-overlay" id="waPreviewOverlay">
+  <div class="wa-preview-card">
+    <div class="wa-preview-badge">✓ VIP ORDER PREVIEW</div>
+    <div class="wa-preview-title">Confirm your message to Bright Spot</div>
+    <div class="wa-preview-ref" id="waPreviewRef"></div>
+    <div class="wa-preview-items" id="waPreviewItems"></div>
+    <div class="wa-preview-total"><span>Total (COD)</span><span class="amt" id="waPreviewTotal"></span></div>
+    <div class="wa-preview-actions">
+      <button class="wa-preview-cancel" id="waPreviewCancelBtn">Edit Order</button>
+      <button class="wa-preview-send" id="waPreviewSendBtn">Send to WhatsApp ›</button>
+    </div>
+  </div>
+</div>
+
+<div class="live-ticker" id="liveTicker">
+  <div class="lt-dot"></div>
+  <div class="lt-text" id="liveTickerText"></div>
+</div>
+
+<div class="spark-burst-layer" id="sparkLayer"></div>
 
 <a class="wa-float wa-link" href="https://wa.me/923001234567?text=Hi%20Bright%20Spot%2C%20I%27d%20like%20to%20know%20more" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
   <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.6-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1s-.7.8-.9 1-.3.2-.6.1a6.7 6.7 0 0 1-2-1.2 7.4 7.4 0 0 1-1.4-1.7c-.1-.2 0-.4.1-.5s.3-.3.4-.5a.6.6 0 0 0 .1-.5c0-.2-.6-1.5-.8-2s-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.6 4.1c.6.3 1.1.4 1.5.5a3.6 3.6 0 0 0 1.6.1 2.6 2.6 0 0 0 1.7-1.2 2.1 2.1 0 0 0 .1-1.2c-.1-.1-.2-.2-.5-.3z"/></svg>
@@ -1243,6 +1456,9 @@ section.style.setProperty('--cat-gradient-bright', CAT_GRADIENTS_BRIGHT[cat.id] 
             <div class="flip-hint">↻</div>
             <button class="wishlist-btn" data-wishlist-id="${productId}" onclick="event.stopPropagation(); toggleWishlist('${productId}', this)" aria-label="Save to wishlist" title="Save to wishlist">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7.5-4.6-10-9.2C.5 8.5 2 5 5.5 5c2 0 3.4 1.1 4.5 2.6C11.1 6.1 12.5 5 14.5 5 18 5 19.5 8.5 22 11.8 19.5 16.4 12 21 12 21Z"/></svg>
+            </button>
+            <button class="qv-btn" onclick="event.stopPropagation(); openQuickView('${productId}')" aria-label="Quick view" title="Quick view">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>
             </button>
             <div class="unavailable-badge" style="display:none;">Currently unavailable</div>
             <div class="flip-label">
@@ -1614,7 +1830,9 @@ function addToCart(productId, btnEl){
   if (btnEl){
     btnEl.classList.add('added');
     setTimeout(()=>btnEl.classList.remove('added'), 900);
+    popClick(btnEl);
   }
+  playClickBlip(); hapticTap();
 }
 
 // ---------- per-card +/- quantity stepper ----------
@@ -1624,6 +1842,7 @@ function cardQtyChange(productId, delta){
   if (next <= 0){ delete cart[productId]; } else { cart[productId] = next; }
   saveCart();
   renderCart();
+  playClickBlip(); hapticTap();
 }
 function syncAllCardQtyUI(){
   document.querySelectorAll('[data-cart-control]').forEach(control=>{
@@ -1771,6 +1990,7 @@ function renderRatingPrompt(order){
         const value = Number(star.dataset.star);
         pendingRatings[productId] = value;
         starsEl.querySelectorAll('svg').forEach(s => s.classList.toggle('on', Number(s.dataset.star) <= value));
+        playClickBlip(); hapticTap();
       });
     });
   });
@@ -1793,6 +2013,8 @@ function renderRatingPrompt(order){
     submitBtn.style.display = 'none';
     thanks.textContent = 'Thanks for the feedback!';
     thanks.style.display = 'block';
+    sparkBurstFromElement(itemsEl, { count: 16 });
+    playChime();
   };
 }
 
@@ -1878,64 +2100,171 @@ async function saveOrderToSupabase(order){
 function generateReceiptPDF(order){
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
-  let y = 20;
+  const BRAND = [249, 115, 22];       // #F97316
+  const BRAND_DARK = [26, 22, 37];    // #1a1625
+  const GRAY = [107, 100, 120];       // #6b6478
+  const LIGHT = [253, 237, 220];      // pale orange tint
+  const ZEBRA = [248, 247, 251];      // faint zebra row tint
+  const pageW = doc.internal.pageSize.getWidth();
+  const marginX = 20;
+  const rightX = pageW - marginX;
 
+  // ---- outer luxury frame ----
+  doc.setDrawColor(BRAND[0], BRAND[1], BRAND[2]);
+  doc.setLineWidth(0.5);
+  doc.rect(8, 8, pageW - 16, doc.internal.pageSize.getHeight() - 16, 'S');
+
+  // ---- header band ----
+  doc.setFillColor(BRAND[0], BRAND[1], BRAND[2]);
+  doc.rect(8, 8, pageW - 16, 34, 'F');
+  doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(18);
-  doc.text('Bright Spot', 20, y); y += 8;
-  doc.setFontSize(10);
+  doc.setFontSize(22);
+  doc.text('BRIGHT SPOT', marginX, 26);
   doc.setFont('helvetica', 'normal');
-  doc.text('Multan, Punjab, Pakistan', 20, y); y += 14;
+  doc.setFontSize(9);
+  doc.text("Multan's Online Marketplace", marginX, 33);
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(13);
-  doc.text('Order Receipt', 20, y); y += 8;
+  doc.text('INVOICE', rightX, 20, { align: 'right' });
   doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.text(`Ref: ${order.orderId}`, rightX, 27, { align: 'right' });
+  doc.text(order.date, rightX, 33, { align: 'right' });
+
+  let y = 54;
+
+  // ---- billed-to / order-details boxes ----
+  const boxW = (pageW - 2 * marginX - 8) / 2;
+  const boxH = 34;
+  doc.setDrawColor(225, 220, 235);
+  doc.setLineWidth(0.3);
+  doc.roundedRect(marginX, y, boxW, boxH, 2, 2, 'S');
+  doc.roundedRect(marginX + boxW + 8, y, boxW, boxH, 2, 2, 'S');
+
+  doc.setTextColor(BRAND[0], BRAND[1], BRAND[2]);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8);
+  doc.text('BILLED TO', marginX + 6, y + 8);
+  doc.text('ORDER DETAILS', marginX + boxW + 14, y + 8);
+
+  doc.setTextColor(BRAND_DARK[0], BRAND_DARK[1], BRAND_DARK[2]);
+  doc.setFont('helvetica', 'bold');
   doc.setFontSize(10);
-  doc.text(`Order ID: ${order.orderId}`, 20, y); y += 6;
-  doc.text(`Date: ${order.date}`, 20, y); y += 6;
-  doc.text(`Payment Method: Cash on Delivery`, 20, y); y += 12;
+  doc.text(order.name, marginX + 6, y + 15);
+  doc.text(`Order ${order.orderId}`, marginX + boxW + 14, y + 15);
 
-  doc.setFont('helvetica', 'bold');
-  doc.text('Customer Details', 20, y); y += 7;
   doc.setFont('helvetica', 'normal');
-  doc.text(`Name: ${order.name}`, 20, y); y += 6;
-  doc.text(`Phone: ${order.phone}`, 20, y); y += 6;
-  const addressLines = doc.splitTextToSize(`Address: ${order.address}, ${order.city}`, 170);
-  doc.text(addressLines, 20, y); y += addressLines.length * 6 + 2;
-  if (order.notes){
-    const noteLines = doc.splitTextToSize(`Notes: ${order.notes}`, 170);
-    doc.text(noteLines, 20, y); y += noteLines.length * 6 + 2;
-  }
-  y += 6;
-
-  doc.setFont('helvetica', 'bold');
-  doc.text('Items', 20, y); y += 7;
   doc.setFontSize(9);
-  doc.text('Product', 20, y);
-  doc.text('Qty', 130, y);
-  doc.text('Total (PKR)', 150, y);
-  y += 5;
-  doc.line(20, y, 190, y); y += 6;
+  doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
+  const addrLines = doc.splitTextToSize(`${order.address}, ${order.city}`, boxW - 12);
+  doc.text(addrLines.slice(0, 2), marginX + 6, y + 21);
+  doc.text(order.phone, marginX + 6, y + 30);
+
+  doc.text(order.date, marginX + boxW + 14, y + 21);
+  doc.setTextColor(BRAND[0], BRAND[1], BRAND[2]);
+  doc.setFont('helvetica', 'bold');
+  doc.text('COD · Cash on Delivery', marginX + boxW + 14, y + 30);
+
+  y += boxH + 14;
+
+  // ---- items table ----
+  const colItem = marginX + 4;
+  const colQty = rightX - 55;
+  const colAmt = rightX - 4;
+
+  doc.setFillColor(LIGHT[0], LIGHT[1], LIGHT[2]);
+  doc.rect(marginX, y, pageW - 2 * marginX, 9, 'F');
+  doc.setTextColor(BRAND_DARK[0], BRAND_DARK[1], BRAND_DARK[2]);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.text('ITEM', colItem, y + 6);
+  doc.text('QTY', colQty, y + 6, { align: 'right' });
+  doc.text('AMOUNT (PKR)', colAmt, y + 6, { align: 'right' });
+  y += 9;
+
   doc.setFont('helvetica', 'normal');
-  order.items.forEach(item=>{
-    doc.text(item.name, 20, y);
-    doc.text(String(item.qty), 130, y);
-    doc.text(item.lineTotal.toLocaleString(), 150, y);
-    y += 6;
+  order.items.forEach((item, idx) => {
+    const nameLines = doc.splitTextToSize(item.name, colQty - colItem - 8);
+    const rowH = Math.max(9, nameLines.length * 5 + 4);
+
+    if (y + rowH > doc.internal.pageSize.getHeight() - 55){
+      doc.addPage();
+      doc.setDrawColor(BRAND[0], BRAND[1], BRAND[2]);
+      doc.setLineWidth(0.5);
+      doc.rect(8, 8, pageW - 16, doc.internal.pageSize.getHeight() - 16, 'S');
+      y = 20;
+    }
+
+    if (idx % 2 === 0){
+      doc.setFillColor(ZEBRA[0], ZEBRA[1], ZEBRA[2]);
+      doc.rect(marginX, y, pageW - 2 * marginX, rowH, 'F');
+    }
+    doc.setTextColor(BRAND_DARK[0], BRAND_DARK[1], BRAND_DARK[2]);
+    doc.setFontSize(9);
+    doc.text(nameLines, colItem, y + 6);
+    doc.text(String(item.qty), colQty, y + 6, { align: 'right' });
+    doc.text(item.lineTotal.toLocaleString(), colAmt, y + 6, { align: 'right' });
+    y += rowH;
   });
-  y += 2;
-  doc.line(20, y, 190, y); y += 8;
 
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(12);
-  doc.text(`Total Due on Delivery: Rs ${order.subtotal.toLocaleString()}`, 20, y); y += 14;
+  doc.setDrawColor(225, 220, 235);
+  doc.line(marginX, y, rightX, y);
+  y += 10;
 
+  if (order.notes){
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(BRAND[0], BRAND[1], BRAND[2]);
+    doc.text('ORDER NOTES', marginX, y);
+    y += 5;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
+    const noteLines = doc.splitTextToSize(order.notes, pageW - 2 * marginX);
+    doc.text(noteLines, marginX, y);
+    y += noteLines.length * 5 + 6;
+  }
+
+  // ---- totals ----
+  const totalBoxW = 75;
+  const totalBoxX = rightX - totalBoxW;
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
-  doc.text('Thank you for shopping with Bright Spot.', 20, y);
+  doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
+  doc.text('Subtotal', totalBoxX, y);
+  doc.text(`Rs ${order.subtotal.toLocaleString()}`, rightX, y, { align: 'right' });
+  y += 7;
+  doc.text('Delivery', totalBoxX, y);
+  doc.text(order.subtotal >= FREE_DELIVERY_THRESHOLD ? 'FREE' : 'Calculated at delivery', rightX, y, { align: 'right' });
+  y += 4;
 
-  doc.save(`${order.orderId}-receipt.pdf`);
+  doc.setFillColor(BRAND[0], BRAND[1], BRAND[2]);
+  doc.roundedRect(totalBoxX, y, totalBoxW, 14, 2, 2, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.text('TOTAL DUE (COD)', totalBoxX + 5, y + 9);
+  doc.setFontSize(12);
+  doc.text(`Rs ${order.subtotal.toLocaleString()}`, rightX - 5, y + 9.5, { align: 'right' });
+  y += 26;
+
+  // ---- footer ----
+  doc.setDrawColor(225, 220, 235);
+  doc.line(marginX, y, rightX, y);
+  y += 8;
+  doc.setFont('helvetica', 'italic');
+  doc.setFontSize(9.5);
+  doc.setTextColor(BRAND_DARK[0], BRAND_DARK[1], BRAND_DARK[2]);
+  doc.text('Thank you for shopping with Bright Spot.', pageW / 2, y, { align: 'center' });
+  y += 6;
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7.5);
+  doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
+  doc.text('Cash payable to the rider upon delivery  ·  3-day return window  ·  Multan, Punjab, Pakistan', pageW / 2, y, { align: 'center' });
+
+  doc.save(`${order.orderId}-invoice.pdf`);
 }
 
 document.getElementById('placeOrderBtn').addEventListener('click', async ()=>{
@@ -1976,12 +2305,21 @@ document.getElementById('placeOrderBtn').addEventListener('click', async ()=>{
   const waMessage = encodeURIComponent(
     `New COD Order ${order.orderId}\n${order.date}\n\nCustomer: ${name}\nPhone: ${phone}\nAddress: ${address}, ${city}\n${notes ? 'Notes: ' + notes + '\n' : ''}\nItems:\n${itemLines}\n\nTotal (COD): Rs ${subtotal.toLocaleString()}`
   );
-  window.open(`https://wa.me/${WA_NUMBER}?text=${waMessage}`, '_blank');
 
-  cart = {};
-  saveCart();
-  renderCart();
-  showSuccessView(order);
+  showWaPreview(order, ()=>{
+    window.open(`https://wa.me/${WA_NUMBER}?text=${waMessage}`, '_blank');
+
+    cart = {};
+    saveCart();
+    renderCart();
+    showSuccessView(order);
+
+    const successCard = document.querySelector('.order-success .check');
+    sparkBurstFromElement(successCard, { count: 26 });
+    confettiExplosion(window.innerWidth / 2, 160, { count: 60 });
+    confettiRain();
+    playChime();
+  });
 });
 
 renderCart();
@@ -1996,7 +2334,8 @@ function toggleWishlist(productId, btnEl){
   const active = list.includes(productId);
   list = active ? list.filter(id => id !== productId) : [...list, productId];
   try { localStorage.setItem('bright-spot-wishlist', JSON.stringify(list)); } catch(e){}
-  if (btnEl) btnEl.classList.toggle('active', !active);
+  if (btnEl){ btnEl.classList.toggle('active', !active); popClick(btnEl); }
+  playClickBlip();
 }
 document.querySelectorAll('.wishlist-btn').forEach(btn=>{
   const id = btn.dataset.wishlistId;
@@ -2115,10 +2454,37 @@ function updateStickyCartBar(){
   document.getElementById('stickyCartSubtotal').textContent = `${subtotal.toLocaleString()} PKR`;
   bar.classList.add('visible');
 }
+
+// ================================================================
+// FREE-DELIVERY PROGRESS BAR
+// ================================================================
+const FREE_DELIVERY_THRESHOLD = 2500; // TODO: confirm your real free-delivery threshold in PKR
+function updateFreeDeliveryBar(){
+  let subtotal = 0;
+  Object.keys(cart).forEach(id => {
+    const p = PRODUCTS[id];
+    if (p) subtotal += priceToNumber(p.price) * cart[id];
+  });
+  const pct = Math.min(100, (subtotal / FREE_DELIVERY_THRESHOLD) * 100);
+  const fill = document.getElementById('fdbFill');
+  const text = document.getElementById('fdbText');
+  if (!fill || !text) return;
+  fill.style.width = pct + '%';
+  if (subtotal === 0){
+    text.textContent = 'Add items to see free delivery progress';
+  } else if (subtotal >= FREE_DELIVERY_THRESHOLD){
+    text.innerHTML = `🎉 <b>Free delivery unlocked!</b>`;
+  } else {
+    const remaining = FREE_DELIVERY_THRESHOLD - subtotal;
+    text.innerHTML = `Add <b>Rs ${remaining.toLocaleString()}</b> more for free delivery`;
+  }
+}
+
 const _origRenderCart = renderCart;
-renderCart = function(){ _origRenderCart(); updateStickyCartBar(); syncAllCardQtyUI(); };
+renderCart = function(){ _origRenderCart(); updateStickyCartBar(); syncAllCardQtyUI(); updateFreeDeliveryBar(); };
 updateStickyCartBar();
 syncAllCardQtyUI();
+updateFreeDeliveryBar();
 window.addEventListener('resize', updateStickyCartBar);
 
 // ---------- policies modal ----------
@@ -2178,6 +2544,288 @@ function closePolicy(){ document.getElementById('policyOverlay').classList.remov
 document.getElementById('policyOverlay').addEventListener('click', (e)=>{
   if (e.target.id === 'policyOverlay') closePolicy();
 });
+
+// ================================================================
+// SOUND + HAPTIC-STYLE CLICK FEEDBACK
+// ================================================================
+let __audioCtx = null;
+function playTone(freq, duration, type){
+  try{
+    if (!__audioCtx) __audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (__audioCtx.state === 'suspended') __audioCtx.resume();
+    const osc = __audioCtx.createOscillator();
+    const gain = __audioCtx.createGain();
+    osc.type = type || 'sine';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.0001, __audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.14, __audioCtx.currentTime + 0.008);
+    gain.gain.exponentialRampToValueAtTime(0.0001, __audioCtx.currentTime + duration);
+    osc.connect(gain); gain.connect(__audioCtx.destination);
+    osc.start(); osc.stop(__audioCtx.currentTime + duration);
+  } catch(e){}
+}
+function playChime(){ playTone(880, 0.12, 'sine'); setTimeout(()=>playTone(1318, 0.16, 'sine'), 90); }
+function playClickBlip(){ playTone(520, 0.06, 'triangle'); }
+function popClick(el){
+  if (!el) return;
+  el.classList.remove('click-pop');
+  void el.offsetWidth;
+  el.classList.add('click-pop');
+}
+// haptic vibration where supported (most Android browsers; iOS Safari ignores this quietly)
+function hapticTap(){ try{ if (navigator.vibrate) navigator.vibrate(12); } catch(e){} }
+
+// ================================================================
+// CONFETTI / SPARK BURST
+// ================================================================
+function sparkBurst(x, y, opts){
+  const layer = document.getElementById('sparkLayer');
+  if (!layer) return;
+  const count = (opts && opts.count) || 18;
+  const colors = (opts && opts.colors) || ['#F97316', '#FB923C', '#FFD08A', '#ffffff'];
+  for (let i = 0; i < count; i++){
+    const p = document.createElement('div');
+    p.className = 'spark-particle';
+    const angle = (Math.PI * 2 * i) / count + Math.random() * 0.6;
+    const distance = 40 + Math.random() * 70;
+    const dx = Math.cos(angle) * distance;
+    const dy = Math.sin(angle) * distance;
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    p.style.left = x + 'px';
+    p.style.top = y + 'px';
+    p.style.background = color;
+    p.style.boxShadow = `0 0 6px ${color}`;
+    layer.appendChild(p);
+    if (typeof p.animate === 'function'){
+      const anim = p.animate([
+        { transform: 'translate(0,0) scale(1)', opacity: 1 },
+        { transform: `translate(${dx}px, ${dy}px) scale(0.3)`, opacity: 0 }
+      ], { duration: 700 + Math.random() * 400, easing: 'cubic-bezier(.2,.7,.3,1)' });
+      anim.onfinish = () => p.remove();
+    } else {
+      // fallback for environments without the Web Animations API
+      p.style.transition = 'transform 0.75s cubic-bezier(.2,.7,.3,1), opacity 0.75s ease';
+      requestAnimationFrame(()=>{
+        p.style.transform = `translate(${dx}px, ${dy}px) scale(0.3)`;
+        p.style.opacity = '0';
+      });
+      setTimeout(()=> p.remove(), 800);
+    }
+  }
+}
+function sparkBurstFromElement(el, opts){
+  if (!el) return;
+  const rect = el.getBoundingClientRect();
+  sparkBurst(rect.left + rect.width / 2, rect.top + rect.height / 2, opts);
+}
+
+// ---------- richer confetti explosion (mixed shapes, gravity drift) ----------
+function confettiExplosion(x, y, opts){
+  const layer = document.getElementById('sparkLayer');
+  if (!layer) return;
+  const count = (opts && opts.count) || 50;
+  const colors = (opts && opts.colors) || ['#F97316', '#FB923C', '#FFD08A', '#FFFFFF', '#FFD600'];
+  for (let i = 0; i < count; i++){
+    const isRect = Math.random() < 0.45;
+    const p = document.createElement('div');
+    p.className = isRect ? 'confetti-piece' : 'spark-particle';
+    const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.9;
+    const distance = 70 + Math.random() * 130;
+    const dx = Math.cos(angle) * distance;
+    const dy = Math.sin(angle) * distance + 40 + Math.random() * 60; // gravity bias, falls further than it rises
+    const rotate = (Math.random() * 720 - 360);
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    p.style.left = x + 'px';
+    p.style.top = y + 'px';
+    p.style.background = color;
+    if (!isRect) p.style.boxShadow = `0 0 7px ${color}`;
+    layer.appendChild(p);
+    const duration = 1000 + Math.random() * 700;
+    if (typeof p.animate === 'function'){
+      const anim = p.animate([
+        { transform: 'translate(0,0) rotate(0deg) scale(1)', opacity: 1 },
+        { transform: `translate(${dx * 0.6}px, ${dy * 0.4 - 30}px) rotate(${rotate * 0.5}deg) scale(1)`, opacity: 1, offset: 0.35 },
+        { transform: `translate(${dx}px, ${dy}px) rotate(${rotate}deg) scale(0.5)`, opacity: 0 }
+      ], { duration, easing: 'cubic-bezier(.2,.6,.35,1)' });
+      anim.onfinish = () => p.remove();
+    } else {
+      p.style.transition = `transform ${duration}ms cubic-bezier(.2,.6,.35,1), opacity ${duration}ms ease`;
+      requestAnimationFrame(()=>{
+        p.style.transform = `translate(${dx}px, ${dy}px) rotate(${rotate}deg) scale(0.5)`;
+        p.style.opacity = '0';
+      });
+      setTimeout(()=> p.remove(), duration + 50);
+    }
+  }
+}
+function confettiRain(){
+  const layer = document.getElementById('sparkLayer');
+  if (!layer) return;
+  const w = window.innerWidth || 360;
+  const colors = ['#F97316', '#FB923C', '#FFD08A', '#FFFFFF', '#FFD600'];
+  for (let i = 0; i < 24; i++){
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    const startX = Math.random() * w;
+    const fallY = 260 + Math.random() * 160;
+    const drift = (Math.random() - 0.5) * 120;
+    const rotate = Math.random() * 720 - 360;
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    p.style.left = startX + 'px';
+    p.style.top = '-12px';
+    p.style.background = color;
+    layer.appendChild(p);
+    const duration = 1400 + Math.random() * 900;
+    const delay = Math.random() * 400;
+    setTimeout(()=>{
+      if (typeof p.animate === 'function'){
+        const anim = p.animate([
+          { transform: 'translate(0,0) rotate(0deg)', opacity: 1 },
+          { transform: `translate(${drift}px, ${fallY}px) rotate(${rotate}deg)`, opacity: 0 }
+        ], { duration, easing: 'ease-in' });
+        anim.onfinish = () => p.remove();
+      } else {
+        p.style.transition = `transform ${duration}ms ease-in, opacity ${duration}ms ease-in`;
+        requestAnimationFrame(()=>{
+          p.style.transform = `translate(${drift}px, ${fallY}px) rotate(${rotate}deg)`;
+          p.style.opacity = '0';
+        });
+        setTimeout(()=> p.remove(), duration + 50);
+      }
+    }, delay);
+  }
+}
+
+// ================================================================
+// QUICK-VIEW "X-RAY" GLASS MODAL
+// ================================================================
+function buildFeatureBullets(product){
+  // Built only from what the product already states (name/note/description) —
+  // no invented dimensions, materials, or specs that aren't actually known.
+  const bullets = [];
+  if (product.note) bullets.push(product.note);
+  if (product.desc){
+    product.desc.split(/[,.]/).map(s=>s.trim()).filter(Boolean).slice(0,3).forEach(s=>bullets.push(s));
+  }
+  bullets.push(`${product.price} PKR · Cash on Delivery`);
+  bullets.push('3-day return window');
+  return bullets.slice(0, 5);
+}
+function openQuickView(productId){
+  const product = PRODUCTS[productId];
+  if (!product) return;
+  const card = document.querySelector(`[data-cart-control="${productId}"]`)?.closest('.flip-card');
+  const accent = card ? getComputedStyle(card.closest('.cat-section') || document.body).getPropertyValue('--cat-accent') : '';
+
+  document.getElementById('qvName').textContent = product.name;
+  document.getElementById('qvPrice').textContent = `${product.price} PKR`;
+  const featuresEl = document.getElementById('qvFeatures');
+  featuresEl.innerHTML = buildFeatureBullets(product).map((f, i) =>
+    `<div class="qv-feature" style="animation-delay:${i * 0.08}s"><span class="qv-dot"></span>${f}</div>`
+  ).join('');
+  const wireSvg = document.getElementById('qvWireSvg');
+  if (accent) wireSvg.style.color = accent.trim();
+
+  document.getElementById('qvAddBtn').onclick = () => {
+    cardQtyChange(productId, 1);
+    popClick(document.getElementById('qvAddBtn'));
+    playClickBlip(); hapticTap();
+    closeQuickView();
+  };
+  document.getElementById('qvWaBtn').onclick = () => {
+    const text = encodeURIComponent(`Hi Bright Spot, I have a question about: ${product.name}`);
+    window.open(`https://wa.me/${WA_NUMBER}?text=${text}`, '_blank');
+  };
+
+  document.getElementById('qvOverlay').classList.add('open');
+}
+function closeQuickView(){ document.getElementById('qvOverlay').classList.remove('open'); }
+document.getElementById('qvOverlay').addEventListener('click', (e)=>{
+  if (e.target.id === 'qvOverlay') closeQuickView();
+});
+
+// ================================================================
+// 3D TILT — COLLECTIONS GRID (vanilla JS, no external library)
+// ================================================================
+document.querySelectorAll('.collection-card').forEach(card => {
+  card.addEventListener('mousemove', (e) => {
+    const rect = card.getBoundingClientRect();
+    const px = (e.clientX - rect.left) / rect.width - 0.5;
+    const py = (e.clientY - rect.top) / rect.height - 0.5;
+    card.style.transform = `perspective(600px) rotateY(${px * 12}deg) rotateX(${-py * 12}deg) scale(1.02)`;
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = 'perspective(600px) rotateY(0deg) rotateX(0deg) scale(1)';
+  });
+});
+
+// ================================================================
+// WHATSAPP "VIP CHECKOUT" PREVIEW MODAL
+// ================================================================
+let __pendingWaOrder = null;
+function showWaPreview(order, onConfirmed){
+  document.getElementById('waPreviewRef').textContent = `Order Reference: ${order.orderId}`;
+  document.getElementById('waPreviewItems').innerHTML = order.items.map(i =>
+    `<div class="wa-preview-item"><span>${i.name} × ${i.qty}</span><span>Rs ${i.lineTotal.toLocaleString()}</span></div>`
+  ).join('');
+  document.getElementById('waPreviewTotal').textContent = `Rs ${order.subtotal.toLocaleString()}`;
+  __pendingWaOrder = { order, onConfirmed };
+  document.getElementById('waPreviewOverlay').classList.add('open');
+}
+document.getElementById('waPreviewSendBtn').addEventListener('click', ()=>{
+  document.getElementById('waPreviewOverlay').classList.remove('open');
+  if (__pendingWaOrder && __pendingWaOrder.onConfirmed) __pendingWaOrder.onConfirmed();
+  __pendingWaOrder = null;
+});
+document.getElementById('waPreviewCancelBtn').addEventListener('click', ()=>{
+  document.getElementById('waPreviewOverlay').classList.remove('open');
+  __pendingWaOrder = null;
+});
+
+// ================================================================
+// LIVE STORE ACTIVITY TICKER — honest signals only, no fabricated
+// people/actions. Rotates real stock-based and category highlights.
+// ================================================================
+function buildHonestTickerMessages(){
+  const messages = [];
+  const catCounts = {};
+  categories.forEach(c => { catCounts[c.label] = c.products.length; });
+  Object.keys(catCounts).forEach(label => {
+    messages.push(`${catCounts[label]} items available in ${label}`);
+  });
+  messages.push('New arrivals added regularly across all categories');
+  messages.push('Cash on Delivery available across Multan');
+  return messages;
+}
+function startLiveTicker(){
+  const el = document.getElementById('liveTicker');
+  const textEl = document.getElementById('liveTickerText');
+  const messages = buildHonestTickerMessages();
+  if (!messages.length) return;
+  let i = 0;
+  function showNext(){
+    textEl.textContent = messages[i % messages.length];
+    el.classList.add('show');
+    i++;
+  }
+  setTimeout(showNext, 3000);
+  setInterval(()=>{
+    el.classList.remove('show');
+    setTimeout(showNext, 500);
+  }, 8000);
+}
+startLiveTicker();
+
+// ================================================================
+// SEARCH HUD — hide blinking cursor while the user is typing
+// ================================================================
+(function(){
+  const input = document.getElementById('searchInput');
+  const cursor = document.getElementById('searchCursor');
+  if (!input || !cursor) return;
+  input.addEventListener('input', ()=>{ cursor.style.display = input.value ? 'none' : 'inline-block'; });
+  input.addEventListener('focus', ()=>{ cursor.style.display = input.value ? 'none' : 'inline-block'; });
+})();
 
 const catVideoObserver = new IntersectionObserver((entries)=>{
   entries.forEach(entry=>{
