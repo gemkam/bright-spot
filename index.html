@@ -950,6 +950,106 @@
   @keyframes ltPulse{ 0%,100%{ opacity:1;} 50%{ opacity:0.4;} }
   .live-ticker .lt-text{ font-size:0.72rem; color:rgba(245,242,251,0.85); line-height:1.4; }
   @media(max-width:768px){ .live-ticker{ display:none; } }
+
+  /* ================================================================
+     WAVEFORM VISUALIZER (chat launcher + search HUD)
+     ================================================================ */
+  .waveform{ display:flex; align-items:center; gap:2px; height:16px; }
+  .waveform .wf-bar{
+    width:3px; border-radius:2px; background:currentColor; opacity:0.85;
+    animation:wfBreathe 1.4s ease-in-out infinite;
+  }
+  .waveform.wf-active .wf-bar{ animation-name:wfActive; animation-duration:0.6s; }
+  .wf-bar:nth-child(1){ animation-delay:0s; }
+  .wf-bar:nth-child(2){ animation-delay:0.12s; }
+  .wf-bar:nth-child(3){ animation-delay:0.24s; }
+  .wf-bar:nth-child(4){ animation-delay:0.36s; }
+  .wf-bar:nth-child(5){ animation-delay:0.48s; }
+  @keyframes wfBreathe{ 0%,100%{ height:4px; } 50%{ height:12px; } }
+  @keyframes wfActive{ 0%,100%{ height:5px; } 50%{ height:16px; } }
+  .launcher-waveform{ position:absolute; bottom:8px; left:50%; transform:translateX(-50%); color:#1B2A4A; }
+  .search-waveform{ color:#F97316; margin-right:8px; flex-shrink:0; }
+
+  /* ================================================================
+     BUNDLE & SAVE MATRIX
+     ================================================================ */
+  .bundle-section{ padding:70px 0; background:var(--ink); border-top:1px solid var(--line); text-align:center; }
+  .bundle-section h3{ font-size:clamp(1.5rem, 2.8vw, 2rem); color:var(--ivory); margin-top:12px; margin-bottom:8px; }
+  .bundle-section .bundle-sub{ color:var(--ivory-dim); font-size:0.9rem; max-width:520px; margin:0 auto 36px; line-height:1.6; }
+  .bundle-grid{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:14px;
+    max-width:960px; margin:0 auto;
+  }
+  .bundle-pair{
+    border:1px solid var(--line); border-radius:12px; padding:18px 16px; background:var(--panel);
+    display:flex; flex-direction:column; align-items:center; gap:8px; transition:border-color .25s ease, transform .25s ease;
+  }
+  .bundle-pair.matched{ border-color:#F97316; box-shadow:0 0 18px rgba(249,115,22,0.2); transform:translateY(-2px); }
+  .bundle-pair .bp-cats{ font-family:'Sora',sans-serif; font-size:0.85rem; font-weight:600; color:var(--ivory); }
+  .bundle-pair .bp-cats .plus{ color:var(--neon); margin:0 6px; }
+  .bundle-pair .bp-perk{ font-size:0.74rem; color:var(--ivory-dim); }
+  .bundle-pair .bp-badge{
+    font-size:0.68rem; font-weight:700; padding:3px 10px; border-radius:20px;
+    background:rgba(249,115,22,0.1); color:var(--neon-bright); border:1px solid rgba(249,115,22,0.3); display:none;
+  }
+  .bundle-pair.matched .bp-badge{ display:inline-block; }
+  .bundle-note{ margin-top:24px; font-size:0.78rem; color:var(--ivory-dim); max-width:520px; margin-left:auto; margin-right:auto; }
+
+  /* ================================================================
+     DELIVERY ZONE SELECTOR (honest — real coverage + stated policy only)
+     ================================================================ */
+  .zone-selector{ margin-top:20px; }
+  .zone-selector .zone-label{ font-size:0.74rem; color:var(--neon); letter-spacing:0.08em; margin-bottom:10px; }
+  .zone-pills{ display:flex; flex-wrap:wrap; gap:8px; }
+  .zone-pill{
+    font-size:0.8rem; padding:8px 14px; border-radius:20px; border:1px solid var(--line);
+    background:none; color:var(--ivory-dim); cursor:pointer; font-family:'Jost',sans-serif; transition:border-color .2s ease, color .2s ease;
+  }
+  .zone-pill.active{ border-color:var(--neon); color:var(--neon); background:rgba(249,115,22,0.08); }
+  .zone-result{
+    margin-top:14px; padding:12px 14px; border-radius:10px; background:var(--panel-2); font-size:0.82rem;
+    color:var(--ivory); display:none; align-items:center; gap:8px; border:1px solid var(--line);
+  }
+  .zone-result.show{ display:flex; }
+  .zone-result .zr-icon{ font-size:1rem; }
+
+  /* ================================================================
+     ADMIN TELEMETRY PREVIEW MODAL
+     ================================================================ */
+  .admin-preview-trigger{ font-size:0.78rem; color:var(--ivory-dim); background:none; border:none; cursor:pointer; text-decoration:underline; font-family:'Jost',sans-serif; }
+  .ap-overlay{
+    position:fixed; inset:0; z-index:470; background:rgba(2,2,4,0.85); backdrop-filter:blur(6px);
+    opacity:0; pointer-events:none; transition:opacity .3s ease; display:flex; align-items:center; justify-content:center; padding:20px;
+  }
+  .ap-overlay.open{ opacity:1; pointer-events:auto; }
+  .ap-card{
+    position:relative; width:100%; max-width:380px; border-radius:20px; padding:0; overflow:hidden;
+    background:#0b0714; border:1px solid rgba(249,115,22,0.3); box-shadow:0 0 50px rgba(249,115,22,0.15), 0 20px 60px rgba(0,0,0,0.6);
+    transform:translateY(16px) scale(0.97); opacity:0; transition:transform .35s ease, opacity .3s ease; color:#f5f2fb;
+  }
+  .ap-overlay.open .ap-card{ transform:translateY(0) scale(1); opacity:1; }
+  .ap-head{ padding:20px 22px 14px; border-bottom:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:space-between; }
+  .ap-head h4{ font-family:'Sora',sans-serif; font-size:0.95rem; }
+  .ap-head .ap-tag{ font-size:0.62rem; font-weight:700; letter-spacing:0.04em; color:#FDBA74; background:rgba(249,115,22,0.12); border:1px solid rgba(249,115,22,0.3); padding:3px 8px; border-radius:20px; }
+  .ap-close{ background:none; border:none; color:rgba(245,242,251,0.5); font-size:1.3rem; cursor:pointer; }
+  .ap-body{ padding:20px 22px; }
+  .ap-mock-notif{
+    display:flex; gap:10px; align-items:flex-start; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);
+    border-radius:12px; padding:12px 14px; margin-bottom:14px; opacity:0; transform:translateY(6px);
+  }
+  .ap-mock-notif.in{ animation:apNotifIn .5s ease forwards; }
+  @keyframes apNotifIn{ to{ opacity:1; transform:translateY(0); } }
+  .ap-mock-notif .ap-notif-icon{ font-size:1.3rem; }
+  .ap-mock-notif .ap-notif-text{ font-size:0.78rem; line-height:1.4; }
+  .ap-mock-notif .ap-notif-text b{ color:#FDBA74; }
+  .ap-toggle-row{ display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-top:1px dashed rgba(255,255,255,0.1); }
+  .ap-toggle-row .ap-toggle-label{ font-size:0.82rem; }
+  .ap-switch{ width:40px; height:22px; border-radius:20px; background:rgba(255,255,255,0.15); position:relative; cursor:pointer; transition:background .3s ease; }
+  .ap-switch.on{ background:#F97316; }
+  .ap-switch .ap-knob{ position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:#fff; transition:transform .3s ease; }
+  .ap-switch.on .ap-knob{ transform:translateX(18px); }
+  .ap-disclaimer{ font-size:0.68rem; color:rgba(245,242,251,0.4); margin-top:14px; line-height:1.5; }
+  .ap-cta{ display:block; text-align:center; margin-top:14px; padding:12px; border-radius:10px; background:linear-gradient(120deg, #FB923C, #F97316); color:#fff; font-family:'Sora',sans-serif; font-weight:600; font-size:0.85rem; }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -996,6 +1096,9 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <input type="text" id="searchInput" placeholder="Ask me anything... e.g. 'wireless earbuds under 2000'" autocomplete="off" dir="auto" data-i18n-ph="search_placeholder">
       <span class="search-cursor" id="searchCursor"></span>
+      <div class="waveform search-waveform" id="searchWaveform">
+        <span class="wf-bar"></span><span class="wf-bar"></span><span class="wf-bar"></span><span class="wf-bar"></span><span class="wf-bar"></span>
+      </div>
       <button class="search-close" id="searchClose" aria-label="Close search">×</button>
     </div>
     <div class="search-results" id="searchResults">
@@ -1115,6 +1218,16 @@
   </div>
 </section>
 
+<section class="bundle-section reveal">
+  <div class="wrap">
+    <div class="kicker" style="justify-content:center;">BUNDLE &amp; SAVE ON DISPATCH</div>
+    <h3>Combine categories, get priority packing</h3>
+    <p class="bundle-sub">Add items from any two categories below to your cart and your order gets flagged for priority dispatch when we pack it.</p>
+    <div class="bundle-grid" id="bundleGrid"></div>
+    <p class="bundle-note" id="bundleNote">Add items from 2 different categories to your cart to unlock this.</p>
+  </div>
+</section>
+
 <div id="categoriesRoot"></div>
 
 <section class="section faq-section reveal" id="faq">
@@ -1140,6 +1253,11 @@
       <div class="kicker" style="justify-content:flex-start;" data-i18n="contact_kicker">VISIT OR WRITE</div>
       <h2 style="margin-top:16px; font-size:clamp(1.9rem,3.2vw,2.4rem); margin-bottom:34px;" data-i18n="contact_h2">Let's get your order sorted.</h2>
       <div class="item"><div class="label" data-i18n="contact_loc_label">LOCATION</div><div class="val" data-i18n="contact_loc_val">Multan, Punjab, Pakistan</div></div>
+      <div class="zone-selector">
+        <div class="zone-label">CHECK DELIVERY TO YOUR AREA</div>
+        <div class="zone-pills" id="zonePills"></div>
+        <div class="zone-result" id="zoneResult"><span class="zr-icon">✓</span><span id="zoneResultText"></span></div>
+      </div>
       <div class="item"><div class="label" data-i18n="contact_wa_label">WHATSAPP</div><a class="val wa-link" href="https://wa.me/923001234567" target="_blank" rel="noopener">+92 300 1234567</a></div>
       <div class="item"><div class="label" data-i18n="contact_email_label">EMAIL</div><a class="val" href="mailto:hello@brightspot.pk">hello@brightspot.pk</a></div>
       <div class="item"><div class="label" data-i18n="contact_hours_label">HOURS</div><div class="val" data-i18n="contact_hours_val">Mon–Sat, 10:00 – 22:00</div></div>
@@ -1180,6 +1298,9 @@
       <button class="policy-trigger" onclick="openPolicy('faq')">FAQ</button>
     </div>
     <div class="foot-fine" data-i18n="footer_fine">© 2026 Bright Spot, Multan. Demo storefront built by KS Tech.</div>
+    <div style="margin-top:10px;">
+      <button class="admin-preview-trigger" onclick="openAdminPreview()">⚙ Engine Specs — see how this runs on the backend</button>
+    </div>
   </div>
 </footer>
 
@@ -1246,6 +1367,32 @@
 
 <div class="spark-burst-layer" id="sparkLayer"></div>
 
+<div class="ap-overlay" id="apOverlay">
+  <div class="ap-card">
+    <div class="ap-head">
+      <h4>Admin Control, From Your Phone</h4>
+      <span class="ap-tag">ILLUSTRATIVE PREVIEW</span>
+    </div>
+    <div class="ap-body">
+      <div class="ap-mock-notif" id="apNotif1">
+        <span class="ap-notif-icon">📲</span>
+        <span class="ap-notif-text"><b>WhatsApp:</b> New COD Order BS-260903-4471 — Rs 2,499</span>
+      </div>
+      <div class="ap-mock-notif" id="apNotif2">
+        <span class="ap-notif-icon">🔔</span>
+        <span class="ap-notif-text"><b>Admin:</b> Order flagged Priority Dispatch (Bundle)</span>
+      </div>
+      <div class="ap-toggle-row">
+        <span class="ap-toggle-label">Product in stock</span>
+        <div class="ap-switch on" id="apSwitch" onclick="toggleApSwitch()"><div class="ap-knob"></div></div>
+      </div>
+      <p class="ap-disclaimer">This is a mocked-up illustration of the workflow, not a live feed of real orders. The actual admin dashboard — where you manage real orders and inventory — is linked below.</p>
+      <a class="ap-cta" href="https://bright-spot-admin.vercel.app" target="_blank" rel="noopener">Open Real Admin Dashboard ›</a>
+    </div>
+    <button class="ap-close" onclick="closeAdminPreview()" style="position:absolute; top:16px; right:18px;">×</button>
+  </div>
+</div>
+
 <a class="wa-float wa-link" href="https://wa.me/923001234567?text=Hi%20Bright%20Spot%2C%20I%27d%20like%20to%20know%20more" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
   <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.6-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1s-.7.8-.9 1-.3.2-.6.1a6.7 6.7 0 0 1-2-1.2 7.4 7.4 0 0 1-1.4-1.7c-.1-.2 0-.4.1-.5s.3-.3.4-.5a.6.6 0 0 0 .1-.5c0-.2-.6-1.5-.8-2s-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.6 4.1c.6.3 1.1.4 1.5.5a3.6 3.6 0 0 0 1.6.1 2.6 2.6 0 0 0 1.7-1.2 2.1 2.1 0 0 0 .1-1.2c-.1-.1-.2-.2-.5-.3z"/></svg>
 </a>
@@ -1253,6 +1400,7 @@
 <script>
 let WA_NUMBER = "923001234567"; // overridden below if the admin sets a custom number in Power Editor
 const PRODUCTS = {}; // populated as product cards render, keyed by productId
+const PRODUCT_CATEGORY = {}; // productId -> category id, for the Bundle & Save detector
 const productIcons = {
   phonecase: `<rect x="6" y="3" width="12" height="18" rx="2.5" stroke="currentColor" stroke-width="1.4" fill="none"/><circle cx="12" cy="17.5" r="1" fill="currentColor"/>`,
   organizer: `<path d="M6 5h12l1 3v12a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V8Z" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M9 5V3h6v2" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M8 11h8M8 14h8M8 17h5" stroke="currentColor" stroke-width="1.2"/>`,
@@ -1442,6 +1590,7 @@ section.style.setProperty('--cat-gradient-bright', CAT_GRADIENTS_BRIGHT[cat.id] 
   const grid = cat.products.map((p, idx)=>{
     const productId = `${cat.id}-${idx}`;
     PRODUCTS[productId] = { name:p.name, note:p.note, price:p.price, img:p.img1 };
+    PRODUCT_CATEGORY[productId] = cat.id;
     const shareText = encodeURIComponent(`${p.name} (${p.note}) — Rs ${p.price}\n${p.desc}\nFrom Bright Spot`);
     const ratingRowHtml = `
               <div class="rating-row" data-rating-id="${productId}">
@@ -1569,6 +1718,8 @@ searchInput.addEventListener('input', ()=>{
 });
 async function runSearch(query){
   searchResults.innerHTML = '<div class="search-hint">Searching...</div>';
+  const wf = document.getElementById('searchWaveform');
+  if (wf) wf.classList.add('wf-active');
   const translatedQuery = (typeof translateUrduQuery === 'function') ? translateUrduQuery(query) : query;
   try{
     const { data, error } = await sbClient.from('products')
@@ -1582,6 +1733,7 @@ async function runSearch(query){
         <div class="si-info"><h4>${p.name}</h4><div class="si-price">Rs ${Number(p.price_pkr).toLocaleString()}</div></div>
       </div>`).join('');
   }catch(e){ searchResults.innerHTML = '<div class="search-hint">Search unavailable right now</div>'; }
+  finally{ if (wf) wf.classList.remove('wf-active'); }
 }
 function jumpToProduct(name){
   closeSearch();
@@ -2077,6 +2229,7 @@ async function saveOrderToSupabase(order){
         subtotal_pkr: order.subtotal,
         payment_method: 'cod',
         status: 'pending',
+        is_bundle: !!order.isBundle,
       });
 
     if (orderError) { console.error('Order save failed:', orderError); return; }
@@ -2134,6 +2287,16 @@ function generateReceiptPDF(order){
   doc.text(order.date, rightX, 33, { align: 'right' });
 
   let y = 54;
+
+  if (order.isBundle){
+    doc.setFillColor(BRAND[0], BRAND[1], BRAND[2]);
+    doc.roundedRect(marginX, y - 8, 80, 9, 2, 2, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.text('🎁 BUNDLE — PRIORITY DISPATCH', marginX + 4, y - 2);
+    y += 6;
+  }
 
   // ---- billed-to / order-details boxes ----
   const boxW = (pageW - 2 * marginX - 8) / 2;
@@ -2294,7 +2457,8 @@ document.getElementById('placeOrderBtn').addEventListener('click', async ()=>{
     orderId: generateOrderId(),
     date: new Date().toLocaleString('en-GB', { timeZone: 'Asia/Karachi' }),
     name, phone, address, city, notes,
-    items, subtotal
+    items, subtotal,
+    isBundle: cartQualifiesForBundle(),
   };
 
   saveOrderLog(order);
@@ -2303,7 +2467,7 @@ document.getElementById('placeOrderBtn').addEventListener('click', async ()=>{
 
   const itemLines = items.map(i=>`${i.name} x${i.qty} — Rs ${i.lineTotal.toLocaleString()}`).join('\n');
   const waMessage = encodeURIComponent(
-    `New COD Order ${order.orderId}\n${order.date}\n\nCustomer: ${name}\nPhone: ${phone}\nAddress: ${address}, ${city}\n${notes ? 'Notes: ' + notes + '\n' : ''}\nItems:\n${itemLines}\n\nTotal (COD): Rs ${subtotal.toLocaleString()}`
+    `New COD Order ${order.orderId}\n${order.date}\n\nCustomer: ${name}\nPhone: ${phone}\nAddress: ${address}, ${city}\n${notes ? 'Notes: ' + notes + '\n' : ''}${order.isBundle ? '\n🎁 BUNDLE ORDER — Priority Dispatch Requested\n' : ''}\nItems:\n${itemLines}\n\nTotal (COD): Rs ${subtotal.toLocaleString()}`
   );
 
   showWaPreview(order, ()=>{
@@ -2481,7 +2645,10 @@ function updateFreeDeliveryBar(){
 }
 
 const _origRenderCart = renderCart;
-renderCart = function(){ _origRenderCart(); updateStickyCartBar(); syncAllCardQtyUI(); updateFreeDeliveryBar(); };
+renderCart = function(){
+  _origRenderCart(); updateStickyCartBar(); syncAllCardQtyUI(); updateFreeDeliveryBar();
+  if (typeof renderBundleGrid === 'function') renderBundleGrid();
+};
 updateStickyCartBar();
 syncAllCardQtyUI();
 updateFreeDeliveryBar();
@@ -2826,6 +2993,102 @@ startLiveTicker();
   input.addEventListener('input', ()=>{ cursor.style.display = input.value ? 'none' : 'inline-block'; });
   input.addEventListener('focus', ()=>{ cursor.style.display = input.value ? 'none' : 'inline-block'; });
 })();
+
+// ================================================================
+// BUNDLE & SAVE MATRIX — real cart-based detection, not decorative.
+// When 2+ distinct categories are in the cart, the order is genuinely
+// tagged "Priority Dispatch" in the WhatsApp message, invoice, and
+// Supabase order record (see placeOrderBtn handler / generateReceiptPDF).
+// ================================================================
+const BUNDLE_PAIRS = [
+  { cats: ['home-kitchen', 'electronics'], label: 'Home & Kitchen', label2: 'Electronics' },
+  { cats: ['fashion', 'beauty'], label: 'Fashion', label2: 'Beauty' },
+  { cats: ['kids-baby', 'health-wellness'], label: 'Kids & Baby', label2: 'Health & Wellness' },
+];
+function getCartCategories(){
+  const cats = new Set();
+  Object.keys(cart).forEach(id => { if (PRODUCT_CATEGORY[id]) cats.add(PRODUCT_CATEGORY[id]); });
+  return cats;
+}
+function cartQualifiesForBundle(){
+  return getCartCategories().size >= 2;
+}
+function renderBundleGrid(){
+  const grid = document.getElementById('bundleGrid');
+  const note = document.getElementById('bundleNote');
+  if (!grid) return;
+  const cartCats = getCartCategories();
+  const anyMatched = cartCats.size >= 2;
+
+  const cards = BUNDLE_PAIRS.map(pair => {
+    const matched = pair.cats.every(c => cartCats.has(c));
+    return `
+      <div class="bundle-pair${matched ? ' matched' : ''}">
+        <div class="bp-cats">${pair.label}<span class="plus">+</span>${pair.label2}</div>
+        <div class="bp-perk">Unlocks priority dispatch</div>
+        <div class="bp-badge">🚀 Unlocked</div>
+      </div>`;
+  }).join('') + `
+      <div class="bundle-pair${anyMatched ? ' matched' : ''}">
+        <div class="bp-cats">Any 2 Categories</div>
+        <div class="bp-perk">Mix &amp; match — same perk applies</div>
+        <div class="bp-badge">🚀 Unlocked</div>
+      </div>`;
+  grid.innerHTML = cards;
+  if (note){
+    note.textContent = anyMatched
+      ? '🎁 Bundle unlocked — this order will be flagged for priority dispatch.'
+      : 'Add items from 2 different categories to your cart to unlock this.';
+  }
+}
+renderBundleGrid();
+
+// ================================================================
+// DELIVERY ZONE SELECTOR — honest: confirms real coverage + the
+// site's actual stated delivery window (see Shipping Policy), no
+// fabricated express-time promises.
+// ================================================================
+const MULTAN_ZONES = ['Gulgasht', 'Shah Rukn-e-Alam', 'Cantt', 'Qasim Bela'];
+function renderZonePills(){
+  const container = document.getElementById('zonePills');
+  if (!container) return;
+  container.innerHTML = MULTAN_ZONES.map(z => `<button class="zone-pill" data-zone="${z}">${z}</button>`).join('');
+  container.querySelectorAll('.zone-pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      container.querySelectorAll('.zone-pill').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const resultEl = document.getElementById('zoneResult');
+      const textEl = document.getElementById('zoneResultText');
+      textEl.textContent = `We deliver to ${btn.dataset.zone} — estimated delivery in 24–48 hours, Cash on Delivery.`;
+      resultEl.classList.add('show');
+      playClickBlip();
+    });
+  });
+}
+renderZonePills();
+
+// ================================================================
+// ADMIN TELEMETRY PREVIEW MODAL — clearly-labeled illustrative mockup,
+// plus a real link to the actual admin dashboard.
+// ================================================================
+function openAdminPreview(){
+  document.getElementById('apOverlay').classList.add('open');
+  ['apNotif1', 'apNotif2'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.classList.remove('in');
+    void el.offsetWidth;
+    setTimeout(()=> el.classList.add('in'), i * 400 + 150);
+  });
+}
+function closeAdminPreview(){ document.getElementById('apOverlay').classList.remove('open'); }
+document.getElementById('apOverlay').addEventListener('click', (e)=>{
+  if (e.target.id === 'apOverlay') closeAdminPreview();
+});
+function toggleApSwitch(){
+  const sw = document.getElementById('apSwitch');
+  sw.classList.toggle('on');
+  playClickBlip();
+}
 
 const catVideoObserver = new IntersectionObserver((entries)=>{
   entries.forEach(entry=>{
@@ -3361,7 +3624,12 @@ function translateUrduQuery(q){
     <div>
       <div class="bs-chat-label">Chat with us</div>
       <h2>Your AI Assistant</h2>
-      <p>Usually replies in seconds</p>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <p style="margin:0;">Usually replies in seconds</p>
+        <div class="waveform" id="bsWaveform" style="color:var(--bs-sun,#F5A623);">
+          <span class="wf-bar"></span><span class="wf-bar"></span><span class="wf-bar"></span><span class="wf-bar"></span><span class="wf-bar"></span>
+        </div>
+      </div>
     </div>
     <button id="bs-close" onclick="bsTogglePanel(false)">✕</button>
   </div>
@@ -3620,11 +3888,15 @@ function bsAddTyping(){
   div.innerHTML='<span></span><span></span><span></span>';
   msgs.appendChild(div);
   msgs.scrollTop = msgs.scrollHeight;
+  const wf = document.getElementById('bsWaveform');
+  if (wf) wf.classList.add('wf-active');
 }
 
 function bsRemoveTyping(){
   const el = document.getElementById('bs-typing-indicator');
   if(el) el.remove();
+  const wf = document.getElementById('bsWaveform');
+  if (wf) wf.classList.remove('wf-active');
 }
 
 function bsAddLeadCard(status, summary, signals){
