@@ -4,6 +4,7 @@ import { useState, useMemo, useTransition } from 'react';
 import { updateSiteSettings, quickUpdateProduct, type SiteSettings } from '../actions';
 import VideoPicker from './video-picker';
 import ImagePicker from '../image-picker';
+import CsvImportSection from './csv-import';
 
 type Product = {
   id: string;
@@ -36,6 +37,7 @@ export default function PowerEditorClient({
       </div>
 
       <SiteSettingsSection initialSettings={initialSettings} />
+      <CsvImportSection />
       <ProductQuickEditSection products={products} categories={categories} />
     </div>
   );

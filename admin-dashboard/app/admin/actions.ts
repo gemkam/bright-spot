@@ -87,6 +87,66 @@ export async function deleteProduct(productId: string) {
   revalidatePath('/admin/power-editor');
 }
 
+// ---------- CSV Bulk Import (Power Editor) ----------
+
+export type CsvProductRow = {
+  product_name: string;
+  price_pkr?: number;
+  description?: string;
+  image_front?: string;
+  image_back?: string;
+};
+
+export type BulkImportResult = {
+  updated: string[];
+  notFound: string[];
+};
+
+// Matches each CSV row to an existing product by exact name, and updates
+// ONLY the fields present in that row (price, description, photos) —
+// never touches stock, category, or anything not included in the CSV.
+// Products not found by name are reported back, not silently skipped.
+export async function bulkImportProducts(rows: CsvProductRow[]): Promise<BulkImportResult> {
+  const supabase = await createClient();
+
+  const { data: existing, error: fetchError } = await supabase
+    .from('products')
+    .select('id, name');
+  if (fetchError) throw fetchError;
+
+  const idByName = new Map<string, string>();
+  (existing ?? []).forEach((p) => idByName.set(p.name.trim().toLowerCase(), p.id));
+
+  const updated: string[] = [];
+  const notFound: string[] = [];
+
+  for (const row of rows) {
+    const key = (row.product_name || '').trim().toLowerCase();
+    const id = idByName.get(key);
+    if (!id) {
+      notFound.push(row.product_name);
+      continue;
+    }
+
+    const patch: Record<string, any> = { updated_at: new Date().toISOString() };
+    if (row.price_pkr !== undefined && !isNaN(row.price_pkr)) patch.price_pkr = row.price_pkr;
+    if (row.description) patch.description = row.description;
+    if (row.image_front) patch.image_front = row.image_front;
+    if (row.image_back) patch.image_back = row.image_back;
+
+    const { error } = await supabase.from('products').update(patch).eq('id', id);
+    if (error) {
+      notFound.push(`${row.product_name} (save failed: ${error.message})`);
+    } else {
+      updated.push(row.product_name);
+    }
+  }
+
+  revalidatePath('/admin');
+  revalidatePath('/admin/power-editor');
+  return { updated, notFound };
+}
+
 // ---------- Orders ----------
 
 const ORDER_STATUSES = ['pending', 'confirmed', 'packed', 'shipped', 'delivered', 'cancelled', 'returned'] as const;
