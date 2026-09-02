@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bright Spot — Multan's Online Marketplace</title>
@@ -398,6 +397,78 @@
     font-size:0.68rem; letter-spacing:0.05em; padding:4px 10px; border-radius:4px;
   }
 
+  /* ================= SEARCH — sharp crisp neon glow ================= */
+  .search-toggle{
+    position:relative; display:flex; align-items:center; justify-content:center;
+    width:38px; height:38px; border-radius:10px;
+    background:#0a0a0a; border:1.5px solid #F97316; color:#F97316; cursor:pointer;
+    box-shadow:0 0 8px rgba(249,115,22,0.6), 0 0 16px rgba(249,115,22,0.35), inset 0 0 6px rgba(249,115,22,0.15);
+    transition:box-shadow .2s ease, color .2s ease, transform .15s ease, border-color .2s ease;
+  }
+  .search-toggle svg{ width:17px; height:17px; }
+  .search-toggle:hover{
+    color:#FB923C; border-color:#FB923C;
+    box-shadow:0 0 12px rgba(251,146,60,0.9), 0 0 28px rgba(251,146,60,0.55), 0 0 44px rgba(251,146,60,0.25), inset 0 0 8px rgba(251,146,60,0.2);
+    transform:scale(1.06);
+  }
+  .search-toggle:active{ transform:scale(0.94); }
+  .search-overlay{
+    position:fixed; inset:0; z-index:300; background:rgba(2,2,4,0.85); backdrop-filter:blur(4px);
+    opacity:0; pointer-events:none; transition:opacity .25s ease;
+    display:flex; align-items:flex-start; justify-content:center; padding:90px 20px 20px;
+  }
+  .search-overlay.open{ opacity:1; pointer-events:auto; }
+  .search-panel{
+    width:100%; max-width:560px; background:#0a0a0a; border:1.5px solid #F97316; border-radius:12px;
+    box-shadow:0 0 20px rgba(249,115,22,0.5), 0 0 60px rgba(249,115,22,0.2), 0 20px 50px rgba(0,0,0,0.7);
+    transform:translateY(-20px) scale(0.97); opacity:0;
+    transition:transform .3s cubic-bezier(.2,.9,.3,1.2), opacity .25s ease; overflow:hidden;
+  }
+  .search-overlay.open .search-panel{ transform:translateY(0) scale(1); opacity:1; }
+  .search-input-row{ display:flex; align-items:center; gap:12px; padding:16px 18px; border-bottom:1.5px solid rgba(249,115,22,0.35); }
+  .search-icon{ width:19px; height:19px; color:#F97316; flex-shrink:0; filter:drop-shadow(0 0 4px rgba(249,115,22,0.7)); }
+  .search-input-row input{ flex:1; background:none; border:none; outline:none; color:#fff; font-family:'Jost',sans-serif; font-size:1.05rem; }
+  .search-input-row input::placeholder{ color:rgba(255,255,255,0.3); }
+  .search-close{ background:none; border:none; color:#F97316; font-size:22px; cursor:pointer; line-height:1; padding:2px 6px; text-shadow:0 0 6px rgba(249,115,22,0.6); }
+  .search-close:hover{ color:#FB923C; }
+  .search-results{ max-height:60vh; overflow-y:auto; padding:8px; }
+  .search-hint{ color:rgba(255,255,255,0.35); font-size:0.85rem; text-align:center; padding:30px 10px; }
+  .search-item{
+    display:flex; align-items:center; gap:12px; padding:10px 10px; border-radius:8px; cursor:pointer;
+    border:1px solid transparent; transition:background .15s ease, border-color .15s ease, box-shadow .15s ease;
+    animation:searchItemIn .25s ease both;
+  }
+  @keyframes searchItemIn{ from{ opacity:0; transform:translateY(6px); } to{ opacity:1; transform:translateY(0); } }
+  .search-item:hover{ background:rgba(249,115,22,0.08); border-color:rgba(249,115,22,0.5); box-shadow:0 0 10px rgba(249,115,22,0.25); }
+  .search-item img{ width:44px; height:44px; border-radius:6px; object-fit:cover; flex-shrink:0; background:#1a1a1a; border:1px solid rgba(249,115,22,0.25); }
+  .search-item .si-info{ flex:1; min-width:0; }
+  .search-item .si-info h4{ font-size:0.88rem; color:#f5f5f5; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .search-item .si-info .si-price{ font-size:0.8rem; color:#F97316; margin-top:2px; text-shadow:0 0 6px rgba(249,115,22,0.4); }
+
+  /* ================= LANGUAGE TOGGLE — sharp crisp neon glow ================= */
+  .lang-toggle{
+    display:flex; align-items:center; justify-content:center;
+    height:38px; padding:0 12px; border-radius:10px;
+    background:#0a0a0a; border:1.5px solid #F97316; color:#F97316; cursor:pointer;
+    font-family:'Sora',sans-serif; font-size:0.75rem; font-weight:700; letter-spacing:0.03em;
+    box-shadow:0 0 8px rgba(249,115,22,0.6), 0 0 16px rgba(249,115,22,0.35), inset 0 0 6px rgba(249,115,22,0.15);
+    transition:box-shadow .2s ease, color .2s ease, transform .15s ease, border-color .2s ease;
+    white-space:nowrap;
+  }
+  .lang-toggle:hover{
+    color:#FB923C; border-color:#FB923C;
+    box-shadow:0 0 12px rgba(251,146,60,0.9), 0 0 28px rgba(251,146,60,0.55), 0 0 44px rgba(251,146,60,0.25);
+    transform:scale(1.05);
+  }
+  .lang-toggle:active{ transform:scale(0.94); }
+  body.lang-ur{ direction:rtl; }
+  body.lang-ur [data-i18n]{ font-family:'Noto Nastaliq Urdu', serif; }
+  body.lang-ur .navlinks{ direction:rtl; }
+  body.lang-ur .hero-text-section h1,
+  body.lang-ur .hero-text-section .lede,
+  body.lang-ur .cat-head h2, body.lang-ur .cat-head p,
+  body.lang-ur .collections-section h2{ font-family:'Noto Nastaliq Urdu', serif; line-height:2; }
+
   /* ================= CART ================= */
   .admin-link{
     display:flex; align-items:center; height:38px; padding:0 14px;
@@ -532,14 +603,14 @@
       <svg class="sparkle sparkle-2" viewBox="0 0 24 24" fill="#FB923C"><path d="M12 0l1.8 7.2L21 9l-7.2 1.8L12 18l-1.8-7.2L3 9l7.2-1.8L12 0z"/></svg>
     </a>
     <div class="navlinks">
-      <a href="#faq" class="faq-nav-link">🎙 Talking FAQ</a>
-      <a href="#fashion">Fashion</a>
-      <a href="#electronics">Electronics</a>
-      <a href="#beauty">Beauty</a>
-      <a href="#home-kitchen">Home &amp; Kitchen</a>
-      <a href="#kids-baby">Kids &amp; Baby</a>
-      <a href="#health-wellness">Wellness</a>
-      <a href="#contact">Contact</a>
+      <a href="#faq" class="faq-nav-link" data-i18n="nav_faq">🎙 Talking FAQ</a>
+      <a href="#fashion" data-i18n="nav_fashion">Fashion</a>
+      <a href="#electronics" data-i18n="nav_electronics">Electronics</a>
+      <a href="#beauty" data-i18n="nav_beauty">Beauty</a>
+      <a href="#home-kitchen" data-i18n="nav_home">Home &amp; Kitchen</a>
+      <a href="#kids-baby" data-i18n="nav_kids">Kids &amp; Baby</a>
+      <a href="#health-wellness" data-i18n="nav_wellness">Wellness</a>
+      <a href="#contact" data-i18n="nav_contact">Contact</a>
     </div>
     <div style="display:flex; align-items:center; gap:14px;">
       <a class="nav-cta wa-link" href="https://wa.me/923001234567?text=Hi%20Bright%20Spot%2C%20I%27d%20like%20to%20know%20more" target="_blank" rel="noopener">
@@ -547,6 +618,10 @@
         WhatsApp
       </a>
       <a class="admin-link" href="https://bright-spot-admin.vercel.app" target="_blank" rel="noopener" title="Admin dashboard">Admin</a>
+      <button class="lang-toggle" id="langToggle" aria-label="Toggle language">EN / اردو</button>
+      <button class="search-toggle" id="searchToggle" aria-label="Search products">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
       <button class="cart-toggle" id="cartToggle" aria-label="Open cart">
         <svg viewBox="0 0 24 24" fill="none"><path d="M3 4h2l2.4 12.2a2 2 0 0 0 2 1.6h8a2 2 0 0 0 2-1.6L21 8H6" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="21" r="1.4" fill="currentColor"/><circle cx="18" cy="21" r="1.4" fill="currentColor"/></svg>
         <span class="cart-badge" id="cartBadge" style="display:none;">0</span>
@@ -556,56 +631,69 @@
   </nav>
 </header>
 
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-panel">
+    <div class="search-input-row">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="searchInput" placeholder="Search products..." autocomplete="off" dir="auto" data-i18n-ph="search_placeholder">
+      <button class="search-close" id="searchClose" aria-label="Close search">×</button>
+    </div>
+    <div class="search-results" id="searchResults">
+      <div class="search-hint" data-i18n="search_hint">Start typing to search live across all products</div>
+    </div>
+  </div>
+</div>
+
 <div class="cart-overlay" id="cartOverlay">
   <div class="cart-drawer">
     <div class="cart-header">
-      <h3 id="cartDrawerTitle">Your Cart</h3>
+      <h3 id="cartDrawerTitle" data-i18n="cart_title">Your Cart</h3>
       <button class="cart-close" id="cartClose" aria-label="Close cart">×</button>
     </div>
 
     <div id="cartView">
       <div class="cart-items" id="cartItems"></div>
       <div class="cart-footer">
-        <div class="cart-subtotal"><span>Subtotal</span><span id="cartSubtotal">0 PKR</span></div>
-        <button class="btn btn-solid cart-checkout" id="cartCheckoutBtn"><span>Proceed to Checkout</span></button>
+        <div class="cart-subtotal"><span data-i18n="cart_subtotal">Subtotal</span><span id="cartSubtotal">0 PKR</span></div>
+        <button class="btn btn-solid cart-checkout" id="cartCheckoutBtn"><span data-i18n="cart_checkout">Proceed to Checkout</span></button>
       </div>
     </div>
 
     <div id="checkoutFormView" class="checkout-view" style="display:none;">
-      <button class="checkout-back" id="checkoutBack">← Back to cart</button>
-      <h4>Delivery Details</h4>
-      <div class="cod-tag">💵 Cash on Delivery</div>
+      <button class="checkout-back" id="checkoutBack" data-i18n="checkout_back">← Back to cart</button>
+      <h4 data-i18n="checkout_delivery">Delivery Details</h4>
+      <div class="cod-tag" data-i18n="checkout_cod">💵 Cash on Delivery</div>
       <div class="checkout-error" id="checkoutError">Please fill in all required fields.</div>
       <div class="checkout-field">
-        <label for="codName">Full Name *</label>
+        <label for="codName" data-i18n="checkout_name">Full Name *</label>
         <input type="text" id="codName" required>
       </div>
       <div class="checkout-field">
-        <label for="codPhone">Phone Number *</label>
+        <label for="codPhone" data-i18n="checkout_phone">Phone Number *</label>
         <input type="tel" id="codPhone" required placeholder="03XX-XXXXXXX">
       </div>
       <div class="checkout-field">
-        <label for="codAddress">Delivery Address *</label>
+        <label for="codAddress" data-i18n="checkout_address">Delivery Address *</label>
         <textarea id="codAddress" required></textarea>
       </div>
       <div class="checkout-field">
-        <label for="codCity">City *</label>
+        <label for="codCity" data-i18n="checkout_city">City *</label>
         <input type="text" id="codCity" required value="Multan">
       </div>
       <div class="checkout-field">
-        <label for="codNotes">Order Notes (optional)</label>
+        <label for="codNotes" data-i18n="checkout_notes">Order Notes (optional)</label>
         <textarea id="codNotes" placeholder="e.g. preferred delivery time"></textarea>
       </div>
       <div class="checkout-summary" id="checkoutSummary"></div>
-      <button class="btn btn-solid cart-checkout" id="placeOrderBtn"><span>Place Order (COD)</span></button>
+      <button class="btn btn-solid cart-checkout" id="placeOrderBtn"><span data-i18n="checkout_place">Place Order (COD)</span></button>
     </div>
 
     <div id="orderSuccessView" class="order-success" style="display:none;">
       <div class="check">✓</div>
-      <h3>Order Placed</h3>
+      <h3 data-i18n="order_placed">Order Placed</h3>
       <p>Order <span class="order-id" id="successOrderId"></span> has been recorded.</p>
       <p>A PDF receipt has downloaded, and your order has been sent to us on WhatsApp for confirmation.</p>
-      <button class="btn btn-ghost" id="orderDoneBtn" style="margin-top:16px; width:100%; justify-content:center;">Done</button>
+      <button class="btn btn-ghost" id="orderDoneBtn" style="margin-top:16px; width:100%; justify-content:center;" data-i18n="order_done">Done</button>
     </div>
   </div>
 </div>
@@ -634,25 +722,25 @@
 
 <section class="hero-text-section">
   <div class="wrap">
-    <div class="kicker">MULTAN, PAKISTAN — CASH ON DELIVERY</div>
-    <h1 id="heroHeadline">Everything your home needs, <em>delivered across Multan.</em></h1>
-    <p class="lede" id="heroSubtext">Home &amp; kitchen, beauty, electronics, and fashion — all in one place. Browse the collection below and order directly on WhatsApp, no account needed.</p>
+    <div class="kicker" data-i18n="hero_kicker">MULTAN, PAKISTAN — CASH ON DELIVERY</div>
+    <h1 id="heroHeadline" data-i18n="hero_h1">Everything your home needs, <em>delivered across Multan.</em></h1>
+    <p class="lede" id="heroSubtext" data-i18n="hero_lede">Home &amp; kitchen, beauty, electronics, and fashion — all in one place. Browse the collection below and order directly on WhatsApp, no account needed.</p>
     <div class="hero-actions">
-      <a href="#fashion" class="btn btn-solid"><span>Start Shopping</span></a>
-      <a href="https://wa.me/923001234567?text=Hi%20Bright%20Spot%2C%20I%27d%20like%20to%20place%20an%20order" target="_blank" rel="noopener" class="btn btn-ghost wa-link">Order on WhatsApp</a>
+      <a href="#fashion" class="btn btn-solid"><span data-i18n="hero_btn_shop">Start Shopping</span></a>
+      <a href="https://wa.me/923001234567?text=Hi%20Bright%20Spot%2C%20I%27d%20like%20to%20place%20an%20order" target="_blank" rel="noopener" class="btn btn-ghost wa-link" data-i18n="hero_btn_wa">Order on WhatsApp</a>
     </div>
     <div class="hero-stats">
-      <div><div class="num" data-count="6">0</div><div class="lbl">categories</div></div>
-      <div><div class="num" data-count="45">0</div><div class="lbl">products</div></div>
-      <div><div class="num" data-count="24">0</div><div class="lbl">hr delivery in Multan</div></div>
+      <div><div class="num" data-count="6">0</div><div class="lbl" data-i18n="stat_categories">categories</div></div>
+      <div><div class="num" data-count="45">0</div><div class="lbl" data-i18n="stat_products">products</div></div>
+      <div><div class="num" data-count="24">0</div><div class="lbl" data-i18n="stat_delivery">hr delivery in Multan</div></div>
     </div>
   </div>
 </section>
 
 <section class="collections-section reveal">
   <div class="wrap">
-    <div class="kicker">BROWSE BY CATEGORY</div>
-    <h2>Our Collections</h2>
+    <div class="kicker" data-i18n="coll_kicker">BROWSE BY CATEGORY</div>
+    <h2 data-i18n="coll_h2">Our Collections</h2>
     <div class="collections-grid" id="collectionsRoot"></div>
   </div>
 </section>
@@ -661,9 +749,9 @@
 
 <section class="section faq-section reveal" id="faq">
   <div class="wrap">
-    <div class="kicker" style="justify-content:center;">🎙 TALKING FAQ</div>
-    <h2 class="faq-title">Tap a question, hear the answer</h2>
-    <p class="faq-subtitle">Recorded voice answers in Urdu — no reading required.</p>
+    <div class="kicker" style="justify-content:center;" data-i18n="faq_kicker">🎙 TALKING FAQ</div>
+    <h2 class="faq-title" data-i18n="faq_title">Tap a question, hear the answer</h2>
+    <p class="faq-subtitle" data-i18n="faq_subtitle">Recorded voice answers in Urdu — no reading required.</p>
     <div class="faq-grid" id="faqGrid"></div>
   </div>
 </section>
@@ -671,20 +759,20 @@
 <section class="section contact" id="contact">
   <div class="wrap contact-grid">
     <div class="contact-info">
-      <div class="kicker" style="justify-content:flex-start;">VISIT OR WRITE</div>
-      <h2 style="margin-top:16px; font-size:clamp(1.9rem,3.2vw,2.4rem); margin-bottom:34px;">Let's get your order sorted.</h2>
-      <div class="item"><div class="label">LOCATION</div><div class="val">Multan, Punjab, Pakistan</div></div>
-      <div class="item"><div class="label">WHATSAPP</div><a class="val wa-link" href="https://wa.me/923001234567" target="_blank" rel="noopener">+92 300 1234567</a></div>
-      <div class="item"><div class="label">EMAIL</div><a class="val" href="mailto:hello@brightspot.pk">hello@brightspot.pk</a></div>
-      <div class="item"><div class="label">HOURS</div><div class="val">Mon–Sat, 10:00 – 22:00</div></div>
+      <div class="kicker" style="justify-content:flex-start;" data-i18n="contact_kicker">VISIT OR WRITE</div>
+      <h2 style="margin-top:16px; font-size:clamp(1.9rem,3.2vw,2.4rem); margin-bottom:34px;" data-i18n="contact_h2">Let's get your order sorted.</h2>
+      <div class="item"><div class="label" data-i18n="contact_loc_label">LOCATION</div><div class="val" data-i18n="contact_loc_val">Multan, Punjab, Pakistan</div></div>
+      <div class="item"><div class="label" data-i18n="contact_wa_label">WHATSAPP</div><a class="val wa-link" href="https://wa.me/923001234567" target="_blank" rel="noopener">+92 300 1234567</a></div>
+      <div class="item"><div class="label" data-i18n="contact_email_label">EMAIL</div><a class="val" href="mailto:hello@brightspot.pk">hello@brightspot.pk</a></div>
+      <div class="item"><div class="label" data-i18n="contact_hours_label">HOURS</div><div class="val" data-i18n="contact_hours_val">Mon–Sat, 10:00 – 22:00</div></div>
     </div>
     <form id="contactForm">
-      <div class="field"><input type="text" id="name" placeholder=" " required><label for="name">Your name</label></div>
-      <div class="field"><input type="tel" id="phone" placeholder=" " required><label for="phone">Phone or WhatsApp number</label></div>
-      <div class="field"><textarea id="message" rows="4" placeholder=" " required></textarea><label for="message">What are you looking for?</label></div>
+      <div class="field"><input type="text" id="name" placeholder=" " required><label for="name" data-i18n="form_name">Your name</label></div>
+      <div class="field"><input type="tel" id="phone" placeholder=" " required><label for="phone" data-i18n="form_phone">Phone or WhatsApp number</label></div>
+      <div class="field"><textarea id="message" rows="4" placeholder=" " required></textarea><label for="message" data-i18n="form_msg">What are you looking for?</label></div>
       <div class="submit-row">
-        <button type="submit" class="btn btn-solid"><span>Send message</span></button>
-        <span class="form-note">We usually reply within a few hours.</span>
+        <button type="submit" class="btn btn-solid"><span data-i18n="form_send">Send message</span></button>
+        <span class="form-note" data-i18n="form_note">We usually reply within a few hours.</span>
       </div>
     </form>
   </div>
@@ -699,7 +787,7 @@
       </a>
       <div class="foot-links"><a href="#fashion">Fashion</a><a href="#electronics">Electronics</a><a href="#beauty">Beauty</a><a href="#home-kitchen">Home &amp; Kitchen</a><a href="#kids-baby">Kids &amp; Baby</a><a href="#health-wellness">Wellness</a></div>
     </div>
-    <div class="foot-fine">© 2026 Bright Spot, Multan. Demo storefront built by KS Tech.</div>
+    <div class="foot-fine" data-i18n="footer_fine">© 2026 Bright Spot, Multan. Demo storefront built by KS Tech.</div>
   </div>
 </footer>
 
@@ -942,10 +1030,10 @@ section.style.setProperty('--cat-gradient-bright', CAT_GRADIENTS_BRIGHT[cat.id] 
       </div>
       <div class="cat-head">
         <div>
-          <div class="kicker">${cat.label.toUpperCase()}</div>
-          <h2>${cat.label}</h2>
+          <div class="kicker" data-cat-kicker="${cat.id}">${cat.label.toUpperCase()}</div>
+          <h2 data-cat-label="${cat.id}">${cat.label}</h2>
         </div>
-        <p>${cat.tagline}</p>
+        <p data-cat-tagline="${cat.id}">${cat.tagline}</p>
       </div>
       <div class="product-grid">${grid}</div>
     </div>`;
@@ -979,6 +1067,47 @@ document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 const SUPABASE_URL = "https://kcggcbenponibkzhstwi.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_hc2mWxb5rFIVmchaW8Sy3w_WjzErq1R";
 const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ---------- search ----------
+const searchToggle = document.getElementById('searchToggle');
+const searchOverlay = document.getElementById('searchOverlay');
+const searchInput = document.getElementById('searchInput');
+const searchResults = document.getElementById('searchResults');
+const searchClose = document.getElementById('searchClose');
+function openSearch(){ searchOverlay.classList.add('open'); setTimeout(()=>searchInput.focus(), 150); }
+function closeSearch(){ searchOverlay.classList.remove('open'); searchInput.value=''; searchResults.innerHTML = '<div class="search-hint">Start typing to search live across all products</div>'; }
+searchToggle.addEventListener('click', openSearch);
+searchClose.addEventListener('click', closeSearch);
+searchOverlay.addEventListener('click', (e)=>{ if(e.target === searchOverlay) closeSearch(); });
+document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeSearch(); });
+let searchDebounce;
+searchInput.addEventListener('input', ()=>{
+  clearTimeout(searchDebounce);
+  const q = searchInput.value.trim();
+  if(!q){ searchResults.innerHTML = '<div class="search-hint">Start typing to search live across all products</div>'; return; }
+  searchDebounce = setTimeout(()=>runSearch(q), 250);
+});
+async function runSearch(query){
+  searchResults.innerHTML = '<div class="search-hint">Searching...</div>';
+  const translatedQuery = (typeof translateUrduQuery === 'function') ? translateUrduQuery(query) : query;
+  try{
+    const { data, error } = await sbClient.from('products')
+      .select('id, name, price_pkr, image_front, note, is_active')
+      .or(`name.ilike.%${translatedQuery}%,note.ilike.%${translatedQuery}%,description.ilike.%${translatedQuery}%`)
+      .eq('is_active', true).limit(12);
+    if(error || !data || data.length === 0){ searchResults.innerHTML = `<div class="search-hint">No products found for "${query}"</div>`; return; }
+    searchResults.innerHTML = data.map((p, i) => `
+      <div class="search-item" style="animation-delay:${i * 0.03}s" onclick="jumpToProduct('${p.name.replace(/'/g,"\\'")}')">
+        <img src="${p.image_front || ''}" alt="${p.name}">
+        <div class="si-info"><h4>${p.name}</h4><div class="si-price">Rs ${Number(p.price_pkr).toLocaleString()}</div></div>
+      </div>`).join('');
+  }catch(e){ searchResults.innerHTML = '<div class="search-hint">Search unavailable right now</div>'; }
+}
+function jumpToProduct(name){
+  closeSearch();
+  const card = document.querySelector(`.flip-card[data-product-name="${name.replace(/"/g,'\\"')}"]`);
+  if(card){ card.scrollIntoView({ behavior:'smooth', block:'center' }); card.style.outline='2px solid #F97316'; setTimeout(()=> card.style.outline='', 1500); }
+}
 
 let productIdByName = {};
 
@@ -1538,6 +1667,144 @@ document.getElementById('contactForm').addEventListener('submit', function(e){
   const text = encodeURIComponent(`Hi Bright Spot, my name is ${name} (${phone}). ${msg}`);
   window.open(`https://wa.me/${WA_NUMBER}?text=${text}`, '_blank');
 });
+</script>
+
+<script>
+// ---------- i18n: English / Urdu toggle ----------
+const I18N = {
+  en: {
+    nav_faq: "🎙 Talking FAQ", nav_fashion: "Fashion", nav_electronics: "Electronics",
+    nav_beauty: "Beauty", nav_home: "Home &amp; Kitchen", nav_kids: "Kids &amp; Baby",
+    nav_wellness: "Wellness", nav_contact: "Contact",
+    hero_kicker: "MULTAN, PAKISTAN — CASH ON DELIVERY",
+    hero_h1: "Everything your home needs, <em>delivered across Multan.</em>",
+    hero_lede: "Home &amp; kitchen, beauty, electronics, and fashion — all in one place. Browse the collection below and order directly on WhatsApp, no account needed.",
+    hero_btn_shop: "Start Shopping", hero_btn_wa: "Order on WhatsApp",
+    stat_categories: "categories", stat_products: "products", stat_delivery: "hr delivery in Multan",
+    coll_kicker: "BROWSE BY CATEGORY", coll_h2: "Our Collections",
+    faq_kicker: "🎙 TALKING FAQ", faq_title: "Tap a question, hear the answer",
+    faq_subtitle: "Recorded voice answers in Urdu — no reading required.",
+    contact_kicker: "VISIT OR WRITE", contact_h2: "Let's get your order sorted.",
+    contact_loc_label: "LOCATION", contact_loc_val: "Multan, Punjab, Pakistan",
+    contact_wa_label: "WHATSAPP", contact_email_label: "EMAIL",
+    contact_hours_label: "HOURS", contact_hours_val: "Mon–Sat, 10:00 – 22:00",
+    form_name: "Your name", form_phone: "Phone or WhatsApp number",
+    form_msg: "What are you looking for?", form_send: "Send message",
+    form_note: "We usually reply within a few hours.",
+    footer_fine: "© 2026 Bright Spot, Multan. Demo storefront built by KS Tech.",
+    cart_title: "Your Cart", cart_subtotal: "Subtotal", cart_checkout: "Proceed to Checkout",
+    checkout_back: "← Back to cart", checkout_delivery: "Delivery Details", checkout_cod: "💵 Cash on Delivery",
+    checkout_name: "Full Name *", checkout_phone: "Phone Number *", checkout_address: "Delivery Address *",
+    checkout_city: "City *", checkout_notes: "Order Notes (optional)", checkout_place: "Place Order (COD)",
+    order_placed: "Order Placed", order_done: "Done",
+    search_placeholder: "Search products...", search_hint: "Start typing to search live across all products",
+    cat_fashion_label: "Fashion & Accessories", cat_fashion_tagline: "Bags, jewelry, and everyday accessories.",
+    cat_electronics_label: "Electronics & Gadgets", cat_electronics_tagline: "Everyday tech, tested and ready to ship same day.",
+    cat_beauty_label: "Beauty & Personal Care", cat_beauty_tagline: "Skincare, makeup, and haircare picks that actually get used.",
+    cat_home_kitchen_label: "Home & Kitchen", cat_home_kitchen_tagline: "Everyday essentials for the Multan kitchen and living room.",
+    cat_kids_baby_label: "Kids & Baby", cat_kids_baby_tagline: "Safe, simple picks for little ones.",
+    cat_health_wellness_label: "Health & Wellness", cat_health_wellness_tagline: "Everyday relief and recovery essentials.",
+  },
+  ur: {
+    nav_faq: "🎙 آواز والے سوالات", nav_fashion: "فیشن", nav_electronics: "الیکٹرانکس",
+    nav_beauty: "بیوٹی", nav_home: "ہوم اینڈ کچن", nav_kids: "بچے اور بیبی",
+    nav_wellness: "صحت", nav_contact: "رابطہ",
+    hero_kicker: "ملتان، پاکستان — کیش آن ڈیلیوری",
+    hero_h1: "آپ کے گھر کی ہر ضرورت، <em>ملتان بھر میں ڈیلیوری۔</em>",
+    hero_lede: "ہوم اینڈ کچن، بیوٹی، الیکٹرانکس اور فیشن — سب ایک جگہ۔ نیچے کلیکشن دیکھیں اور واٹس ایپ پر براہ راست آرڈر کریں، کسی اکاؤنٹ کی ضرورت نہیں۔",
+    hero_btn_shop: "خریداری شروع کریں", hero_btn_wa: "واٹس ایپ پر آرڈر کریں",
+    stat_categories: "کیٹیگریز", stat_products: "پروڈکٹس", stat_delivery: "گھنٹے میں ڈیلیوری (ملتان)",
+    coll_kicker: "کیٹیگری کے مطابق دیکھیں", coll_h2: "ہماری کلیکشنز",
+    faq_kicker: "🎙 آواز والے سوالات", faq_title: "سوال پر ٹیپ کریں، جواب سنیں",
+    faq_subtitle: "اردو میں ریکارڈ شدہ جوابات — پڑھنے کی ضرورت نہیں۔",
+    contact_kicker: "ملیں یا لکھیں", contact_h2: "آئیے آپ کا آرڈر مکمل کرتے ہیں۔",
+    contact_loc_label: "مقام", contact_loc_val: "ملتان، پنجاب، پاکستان",
+    contact_wa_label: "واٹس ایپ", contact_email_label: "ای میل",
+    contact_hours_label: "اوقات", contact_hours_val: "پیر تا ہفتہ، 10:00 – 22:00",
+    form_name: "آپ کا نام", form_phone: "فون یا واٹس ایپ نمبر",
+    form_msg: "آپ کیا تلاش کر رہے ہیں؟", form_send: "پیغام بھیجیں",
+    form_note: "ہم عام طور پر چند گھنٹوں میں جواب دیتے ہیں۔",
+    footer_fine: "© 2026 برائٹ اسپاٹ، ملتان۔ ڈیمو اسٹور فرنٹ از KS Tech۔",
+    cart_title: "آپ کی ٹوکری", cart_subtotal: "ذیلی مجموعہ", cart_checkout: "چیک آؤٹ کی طرف بڑھیں",
+    checkout_back: "→ ٹوکری کی طرف واپس", checkout_delivery: "ڈیلیوری کی تفصیلات", checkout_cod: "💵 کیش آن ڈیلیوری",
+    checkout_name: "پورا نام *", checkout_phone: "فون نمبر *", checkout_address: "ڈیلیوری کا پتہ *",
+    checkout_city: "شہر *", checkout_notes: "آرڈر نوٹس (اختیاری)", checkout_place: "آرڈر کریں (COD)",
+    order_placed: "آرڈر مکمل ہو گیا", order_done: "ٹھیک ہے",
+    search_placeholder: "پروڈکٹس تلاش کریں...", search_hint: "لکھنا شروع کریں، تمام پروڈکٹس میں فوری تلاش ہوگی",
+    cat_fashion_label: "فیشن اور اکسیسریز", cat_fashion_tagline: "بیگز، زیورات اور روزمرہ کی اشیاء۔",
+    cat_electronics_label: "الیکٹرانکس اور گیجٹس", cat_electronics_tagline: "روزمرہ ٹیکنالوجی، اسی دن ترسیل کے لیے تیار۔",
+    cat_beauty_label: "بیوٹی اور پرسنل کیئر", cat_beauty_tagline: "اسکن کیئر، میک اپ اور ہیئر کیئر کی چیزیں جو واقعی استعمال ہوتی ہیں۔",
+    cat_home_kitchen_label: "ہوم اینڈ کچن", cat_home_kitchen_tagline: "ملتان کے کچن اور بیٹھک کے لیے روزمرہ ضروریات۔",
+    cat_kids_baby_label: "بچے اور بیبی", cat_kids_baby_tagline: "چھوٹے بچوں کے لیے محفوظ اور آسان چیزیں۔",
+    cat_health_wellness_label: "صحت اور تندرستی", cat_health_wellness_tagline: "روزمرہ آرام اور بحالی کی اشیاء۔",
+  }
+};
+
+// Urdu -> English keyword map so typing in Urdu still finds real products
+const UR_SEARCH_MAP = {
+  "کپڑے":"fashion","فیشن":"fashion","بیگ":"bag","زیور":"jewelry",
+  "الیکٹرانکس":"electronics","ہیڈ فون":"earbuds","ائیربڈز":"earbuds","چارجر":"charger","لائٹ":"light","پنکھا":"fan",
+  "بیوٹی":"beauty","میک اپ":"makeup","پرفیوم":"perfume","بال":"hair","استرا":"shaver",
+  "کچن":"kitchen","برتن":"cookware","بوتل":"bottle","استری":"iron","جوسر":"juicer","بلینڈر":"blender",
+  "بچے":"kids","بیبی":"baby","کھلونا":"toy",
+  "صحت":"health","مساج":"massager","درد":"pain"
+};
+
+let currentLang = localStorage.getItem('bs-lang') || 'en';
+
+function applyLang(lang){
+  currentLang = lang;
+  localStorage.setItem('bs-lang', lang);
+  document.body.classList.toggle('lang-ur', lang === 'ur');
+  document.documentElement.lang = lang === 'ur' ? 'ur' : 'en';
+
+  const dict = I18N[lang];
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (dict[key] !== undefined) el.innerHTML = dict[key];
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    const key = el.getAttribute('data-i18n-ph');
+    if (dict[key] !== undefined) el.setAttribute('placeholder', dict[key]);
+  });
+
+  // category headings/taglines (built dynamically per category id)
+  document.querySelectorAll('[data-cat-label]').forEach(el => {
+    const id = el.getAttribute('data-cat-label').replace(/-/g,'_');
+    const key = `cat_${id}_label`;
+    if (dict[key]) el.textContent = dict[key];
+  });
+  document.querySelectorAll('[data-cat-kicker]').forEach(el => {
+    const id = el.getAttribute('data-cat-kicker').replace(/-/g,'_');
+    const key = `cat_${id}_label`;
+    if (dict[key]) el.textContent = dict[key].toUpperCase();
+  });
+  document.querySelectorAll('[data-cat-tagline]').forEach(el => {
+    const id = el.getAttribute('data-cat-tagline').replace(/-/g,'_');
+    const key = `cat_${id}_tagline`;
+    if (dict[key]) el.textContent = dict[key];
+  });
+
+  const btn = document.getElementById('langToggle');
+  if (btn) btn.textContent = lang === 'en' ? 'EN / اردو' : 'اردو / EN';
+}
+
+document.getElementById('langToggle').addEventListener('click', () => {
+  applyLang(currentLang === 'en' ? 'ur' : 'en');
+});
+
+// Apply saved language once page content (categories etc.) has rendered
+window.addEventListener('load', () => applyLang(currentLang));
+
+// Translate common Urdu shopping words in the search box to English terms
+// before querying (product names/descriptions are stored in English).
+function translateUrduQuery(q){
+  let translated = q;
+  Object.keys(UR_SEARCH_MAP).forEach(ur => {
+    if (q.includes(ur)) translated = translated.split(ur).join(UR_SEARCH_MAP[ur]);
+  });
+  return translated;
+}
 </script>
 
 <!--
