@@ -404,6 +404,18 @@
   .icon-btn svg{ width:15px; height:15px; }
   .icon-btn.cart-btn.added{ border-color:var(--cat-accent, var(--neon)); color:var(--cat-accent, var(--neon)); }
 
+  /* ================= PER-CARD QTY STEPPER ================= */
+  .cart-control{ display:flex; align-items:center; }
+  .qty-stepper{
+    display:flex; align-items:center; gap:8px; border:1px solid var(--cat-accent, var(--neon));
+    border-radius:4px; padding:2px 4px; background:rgba(249,115,22,0.08);
+  }
+  .qty-stepper button{
+    width:20px; height:20px; border:none; background:none; color:var(--cat-accent, var(--neon-bright));
+    font-size:0.95rem; cursor:pointer; line-height:1; display:flex; align-items:center; justify-content:center;
+  }
+  .qty-stepper .qty-value{ font-size:0.8rem; color:#f5f2fb; min-width:14px; text-align:center; font-family:'Sora',sans-serif; font-weight:600; }
+
   /* Product marked "Hidden" in the admin dashboard */
   .flip-card.product-unavailable .flip-front,
   .flip-card.product-unavailable .flip-back{ filter:grayscale(0.6) brightness(0.55); }
@@ -597,6 +609,17 @@
   .order-success h3{ font-family:'Sora',sans-serif; color:var(--ivory); margin-bottom:8px; }
   .order-success p{ font-size:0.88rem; color:var(--ivory-dim); line-height:1.6; margin-bottom:6px; }
   .order-success .order-id{ color:var(--neon-bright); font-weight:600; }
+
+  /* ================= POST-CHECKOUT RATING PROMPT ================= */
+  .rating-prompt{ text-align:left; margin-top:22px; padding-top:18px; border-top:1px solid var(--line); }
+  .rating-prompt-title{ font-family:'Sora',sans-serif; font-size:0.92rem; color:var(--ivory); margin-bottom:12px; text-align:center; }
+  .rating-prompt-item{ display:flex; align-items:center; gap:10px; padding:8px 0; }
+  .rating-prompt-item img{ width:38px; height:38px; border-radius:6px; object-fit:cover; flex-shrink:0; }
+  .rating-prompt-item .rpi-name{ flex:1; font-size:0.78rem; color:var(--ivory); line-height:1.3; }
+  .rpi-stars{ display:flex; gap:2px; cursor:pointer; }
+  .rpi-stars svg{ width:20px; height:20px; color:rgba(245,242,251,0.25); transition:color .15s ease; }
+  .rpi-stars svg.on{ color:#FFB020; }
+  #ratingThanks{ text-align:center; font-size:0.85rem; color:var(--neon-bright); margin-top:10px; }
 
   .wa-btn{ display:flex; align-items:center; gap:6px; font-size:0.74rem; color:var(--neon-bright); border:1px solid var(--line); padding:8px 12px; transition:border-color .3s, background .3s; }
   .wa-btn:hover{ border-color:var(--cat-accent, var(--neon)); background:color-mix(in srgb, var(--cat-accent, var(--neon)) 12%, transparent); }
@@ -852,6 +875,12 @@
       <h3 data-i18n="order_placed">Order Placed</h3>
       <p>Order <span class="order-id" id="successOrderId"></span> has been recorded.</p>
       <p>A PDF receipt has downloaded, and your order has been sent to us on WhatsApp for confirmation.</p>
+      <div id="ratingPromptBlock" class="rating-prompt" style="display:none;">
+        <div class="rating-prompt-title">Rate what you ordered</div>
+        <div id="ratingPromptItems"></div>
+        <button class="btn btn-solid" id="submitRatingsBtn" style="width:100%; justify-content:center; margin-top:10px;"><span>Submit Rating</span></button>
+        <div id="ratingThanks" style="display:none;">Thanks for the feedback!</div>
+      </div>
       <button class="btn btn-ghost" id="orderDoneBtn" style="margin-top:16px; width:100%; justify-content:center;" data-i18n="order_done">Done</button>
     </div>
   </div>
@@ -1225,9 +1254,16 @@ section.style.setProperty('--cat-gradient-bright', CAT_GRADIENTS_BRIGHT[cat.id] 
                   <a class="icon-btn" href="https://wa.me/?text=${shareText}" target="_blank" rel="noopener" onclick="event.stopPropagation()" aria-label="Share on WhatsApp" title="Share on WhatsApp">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2z"/></svg>
                   </a>
-                  <button class="icon-btn cart-btn" data-product-id="${productId}" onclick="event.stopPropagation(); addToCart('${productId}', this)" aria-label="Add to cart" title="Add to cart">
-                    <svg viewBox="0 0 24 24" fill="none"><path d="M3 4h2l2.4 12.2a2 2 0 0 0 2 1.6h8a2 2 0 0 0 2-1.6L21 8H6" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="21" r="1.4" fill="currentColor"/><circle cx="18" cy="21" r="1.4" fill="currentColor"/></svg>
-                  </button>
+                  <div class="cart-control" data-cart-control="${productId}">
+                    <button class="icon-btn cart-btn" data-product-id="${productId}" onclick="event.stopPropagation(); addToCart('${productId}', this)" aria-label="Add to cart" title="Add to cart">
+                      <svg viewBox="0 0 24 24" fill="none"><path d="M3 4h2l2.4 12.2a2 2 0 0 0 2 1.6h8a2 2 0 0 0 2-1.6L21 8H6" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="21" r="1.4" fill="currentColor"/><circle cx="18" cy="21" r="1.4" fill="currentColor"/></svg>
+                    </button>
+                    <div class="qty-stepper" style="display:none;">
+                      <button onclick="event.stopPropagation(); cardQtyChange('${productId}', -1)" aria-label="Decrease quantity">−</button>
+                      <span class="qty-value">0</span>
+                      <button onclick="event.stopPropagation(); cardQtyChange('${productId}', 1)" aria-label="Increase quantity">+</button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1566,6 +1602,31 @@ function addToCart(productId, btnEl){
   }
 }
 
+// ---------- per-card +/- quantity stepper ----------
+function cardQtyChange(productId, delta){
+  const current = cart[productId] || 0;
+  const next = current + delta;
+  if (next <= 0){ delete cart[productId]; } else { cart[productId] = next; }
+  saveCart();
+  renderCart();
+}
+function syncAllCardQtyUI(){
+  document.querySelectorAll('[data-cart-control]').forEach(control=>{
+    const productId = control.dataset.cartControl;
+    const qty = cart[productId] || 0;
+    const addBtn = control.querySelector('.cart-btn');
+    const stepper = control.querySelector('.qty-stepper');
+    if (qty > 0){
+      addBtn.style.display = 'none';
+      stepper.style.display = 'flex';
+      stepper.querySelector('.qty-value').textContent = qty;
+    } else {
+      addBtn.style.display = 'flex';
+      stepper.style.display = 'none';
+    }
+  });
+}
+
 function changeQty(productId, delta){
   if (!cart[productId]) return;
   cart[productId] += delta;
@@ -1656,12 +1717,68 @@ function showCheckoutView(){
   drawerTitle.textContent = 'Checkout';
   renderCheckoutSummary();
 }
-function showSuccessView(orderId){
+function showSuccessView(order){
   cartView.style.display = 'none';
   checkoutFormView.style.display = 'none';
   orderSuccessView.style.display = 'block';
   drawerTitle.textContent = 'Order Confirmed';
-  document.getElementById('successOrderId').textContent = orderId;
+  document.getElementById('successOrderId').textContent = order.orderId;
+  renderRatingPrompt(order);
+}
+
+// ---------- post-checkout rating prompt ----------
+let pendingRatings = {};
+function renderRatingPrompt(order){
+  const block = document.getElementById('ratingPromptBlock');
+  const itemsEl = document.getElementById('ratingPromptItems');
+  const submitBtn = document.getElementById('submitRatingsBtn');
+  const thanks = document.getElementById('ratingThanks');
+  if (!order.items || order.items.length === 0){ block.style.display = 'none'; return; }
+
+  pendingRatings = {};
+  thanks.style.display = 'none';
+  submitBtn.style.display = 'block';
+  block.style.display = 'block';
+
+  itemsEl.innerHTML = order.items.map(item => `
+    <div class="rating-prompt-item" data-rpi-product="${item.productId}">
+      <img src="${item.img || ''}" alt="${item.name}">
+      <div class="rpi-name">${item.name}</div>
+      <div class="rpi-stars" data-rpi-stars="${item.productId}">
+        ${[1,2,3,4,5].map(n => `<svg data-star="${n}" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.5 5.5 21 7.5 13.5 2 9h7z"/></svg>`).join('')}
+      </div>
+    </div>`).join('');
+
+  itemsEl.querySelectorAll('.rpi-stars').forEach(starsEl=>{
+    const productId = starsEl.dataset.rpiStars;
+    starsEl.querySelectorAll('svg').forEach(star=>{
+      star.addEventListener('click', ()=>{
+        const value = Number(star.dataset.star);
+        pendingRatings[productId] = value;
+        starsEl.querySelectorAll('svg').forEach(s => s.classList.toggle('on', Number(s.dataset.star) <= value));
+      });
+    });
+  });
+
+  submitBtn.onclick = async ()=>{
+    const toSubmit = Object.keys(pendingRatings);
+    if (toSubmit.length === 0){ thanks.textContent = 'Tap the stars above to rate an item first.'; thanks.style.display = 'block'; return; }
+    submitBtn.disabled = true;
+    try{
+      const rows = toSubmit.map(productId => {
+        const item = order.items.find(i => i.productId === productId);
+        return {
+          product_name: item ? item.name : productId,
+          order_number: order.orderId,
+          rating: pendingRatings[productId],
+        };
+      });
+      await sbClient.from('product_reviews').insert(rows);
+    } catch(e){ console.error('Rating submit failed:', e); }
+    submitBtn.style.display = 'none';
+    thanks.textContent = 'Thanks for the feedback!';
+    thanks.style.display = 'block';
+  };
 }
 
 function renderCheckoutSummary(){
@@ -1826,7 +1943,7 @@ document.getElementById('placeOrderBtn').addEventListener('click', async ()=>{
     const qty = cart[id];
     const lineTotal = priceToNumber(p.price) * qty;
     subtotal += lineTotal;
-    return { name: p.name, qty, price: p.price, lineTotal };
+    return { productId: id, name: p.name, qty, price: p.price, lineTotal, img: p.img };
   });
 
   const order = {
@@ -1848,7 +1965,7 @@ document.getElementById('placeOrderBtn').addEventListener('click', async ()=>{
 
   cart = {};
   saveCart();
-  showSuccessView(order.orderId);
+  showSuccessView(order);
 });
 
 renderCart();
@@ -1924,24 +2041,46 @@ document.querySelectorAll('.flip-card').forEach(card=>{
   } catch(e){}
 })();
 
-// ---------- honest ratings (only shows real numbers if a reviews table exists) ----------
+// ---------- honest ratings (only shows real numbers once real reviews exist) ----------
 (async function applyLiveRatings(){
   try {
+    // Preferred: products table already has aggregated avg_rating/review_count columns
     const { data, error } = await sbClient.from('products').select('name, avg_rating, review_count');
-    if (error || !data) return; // table/columns don't exist yet — cards keep the honest "New" state
-    const byName = {};
-    data.forEach(row => { byName[row.name] = row; });
+    let byName = {};
+    let haveAggregateColumns = false;
+    if (!error && data && data.some(row => row.review_count)){
+      haveAggregateColumns = true;
+      data.forEach(row => { byName[row.name] = { avg: Number(row.avg_rating) || 0, count: row.review_count }; });
+    }
+
+    // Fallback: compute averages live from the product_reviews table this
+    // page writes to after checkout (post-checkout rating prompt).
+    if (!haveAggregateColumns){
+      const { data: reviews, error: reviewsError } = await sbClient.from('product_reviews').select('product_name, rating');
+      if (!reviewsError && reviews && reviews.length){
+        const grouped = {};
+        reviews.forEach(r => {
+          if (!grouped[r.product_name]) grouped[r.product_name] = [];
+          grouped[r.product_name].push(Number(r.rating) || 0);
+        });
+        Object.keys(grouped).forEach(name => {
+          const ratings = grouped[name];
+          const avg = ratings.reduce((a,b)=>a+b,0) / ratings.length;
+          byName[name] = { avg, count: ratings.length };
+        });
+      }
+    }
+
     document.querySelectorAll('[data-rating-id]').forEach(el => {
       const id = el.dataset.ratingId;
       const p = PRODUCTS[id];
       const row = p && byName[p.name];
-      if (!row || !row.review_count) return;
-      const avg = Number(row.avg_rating) || 0;
+      if (!row || !row.count) return;
       const stars = el.querySelectorAll('.rating-stars svg');
-      stars.forEach((s, i) => s.classList.toggle('filled', i < Math.round(avg)));
-      stars.forEach((s, i) => s.classList.toggle('empty', i >= Math.round(avg)));
+      stars.forEach((s, i) => s.classList.toggle('filled', i < Math.round(row.avg)));
+      stars.forEach((s, i) => s.classList.toggle('empty', i >= Math.round(row.avg)));
       const textEl = el.querySelector('.rating-text');
-      if (textEl) textEl.textContent = `${avg.toFixed(1)} (${row.review_count} review${row.review_count === 1 ? '' : 's'})`;
+      if (textEl) textEl.textContent = `${row.avg.toFixed(1)} (${row.count} review${row.count === 1 ? '' : 's'})`;
     });
   } catch(e){}
 })();
@@ -1961,8 +2100,9 @@ function updateStickyCartBar(){
   bar.classList.add('visible');
 }
 const _origRenderCart = renderCart;
-renderCart = function(){ _origRenderCart(); updateStickyCartBar(); };
+renderCart = function(){ _origRenderCart(); updateStickyCartBar(); syncAllCardQtyUI(); };
 updateStickyCartBar();
+syncAllCardQtyUI();
 window.addEventListener('resize', updateStickyCartBar);
 
 // ---------- policies modal ----------
