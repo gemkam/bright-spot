@@ -486,6 +486,30 @@
   body.lang-ur .cat-head h2, body.lang-ur .cat-head p,
   body.lang-ur .collections-section h2{ font-family:'Noto Nastaliq Urdu', serif; line-height:2; }
 
+  /* ================= FAQ ASK AI ================= */
+  .faq-ask{ max-width:620px; margin:44px auto 0; text-align:center; }
+  .faq-ask-title{ font-size:0.9rem; color:var(--ivory-dim); margin-bottom:14px; }
+  .faq-ask-row{ display:flex; gap:10px; }
+  .faq-ask-row input{
+    flex:1; height:48px; padding:0 16px; border-radius:10px;
+    background:#0a0a0a; border:1.5px solid #F97316; color:#fff; font-family:'Jost',sans-serif; font-size:0.95rem;
+    box-shadow:0 0 8px rgba(249,115,22,0.4), inset 0 0 6px rgba(249,115,22,0.1); outline:none;
+  }
+  .faq-ask-row input::placeholder{ color:rgba(255,255,255,0.35); }
+  .faq-ask-row button{
+    height:48px; padding:0 22px; border-radius:10px; background:#0a0a0a; border:1.5px solid #F97316;
+    color:#F97316; font-weight:700; cursor:pointer;
+    box-shadow:0 0 8px rgba(249,115,22,0.6), 0 0 16px rgba(249,115,22,0.35);
+    transition:transform .15s ease, box-shadow .2s ease;
+  }
+  .faq-ask-row button:hover{ transform:scale(1.04); box-shadow:0 0 12px rgba(251,146,60,0.9), 0 0 28px rgba(251,146,60,0.5); }
+  .faq-ask-answer{
+    margin-top:18px; text-align:left; background:#0a0a0a; border:1.5px solid rgba(249,115,22,0.4);
+    border-radius:12px; padding:18px 20px;
+  }
+  .faq-ask-answer .faq-a-en{ color:#f0f0f0; font-size:0.92rem; line-height:1.6; margin-bottom:12px; }
+  .faq-ask-answer .faq-a-ur{ color:#FDBA74; font-size:1rem; line-height:2; direction:rtl; font-family:'Noto Nastaliq Urdu', serif; padding-top:12px; border-top:1px dashed rgba(249,115,22,0.3); }
+
   /* ================= CART ================= */
   .admin-link{
     display:flex; align-items:center; height:38px; padding:0 14px; border-radius:10px;
@@ -786,6 +810,14 @@
     <h2 class="faq-title" data-i18n="faq_title">Tap a question, hear the answer</h2>
     <p class="faq-subtitle" data-i18n="faq_subtitle">Recorded voice answers in Urdu — no reading required.</p>
     <div class="faq-grid" id="faqGrid"></div>
+    <div class="faq-ask">
+      <div class="faq-ask-title" data-i18n="faq_ask_title">Or ask your own question</div>
+      <div class="faq-ask-row">
+        <input type="text" id="faqAskInput" placeholder="Type your question..." dir="auto" data-i18n-ph="faq_ask_ph">
+        <button id="faqAskBtn" data-i18n="faq_ask_btn">Ask</button>
+      </div>
+      <div id="faqAskAnswer" class="faq-ask-answer" style="display:none;"></div>
+    </div>
   </div>
 </section>
 
@@ -1313,6 +1345,59 @@ function playFaqAnswer(btn){
   } catch (e) {}
 })();
 
+// ---------- FAQ Ask AI (written, bilingual EN + Urdu, strictly no Hindi script) ----------
+const faqAskInput = document.getElementById('faqAskInput');
+const faqAskBtn = document.getElementById('faqAskBtn');
+const faqAskAnswer = document.getElementById('faqAskAnswer');
+
+const FAQ_AI_SYSTEM = `You are a helpful FAQ assistant for Bright Spot, an online store in Multan, Pakistan (COD, WhatsApp orders, ships across Multan). Answer the customer's question clearly and warmly in 2-3 sentences.
+
+Respond in EXACTLY this format, nothing else, no markdown:
+EN: <answer in English>
+UR: <the same answer in Urdu>
+
+CRITICAL RULES for the UR line:
+- Use ONLY the Urdu script (Perso-Arabic script, right-to-left), the same script used to write کتاب، پاکستان، اردو.
+- NEVER use Hindi/Devanagari script (the script used to write हिन्दी) under any circumstance, even if it seems easier or the meaning is similar. Devanagari characters are strictly forbidden.
+- Do not romanize Urdu into Latin letters either — it must be native Urdu script only.`;
+
+async function askFaqAI(){
+  const question = faqAskInput.value.trim();
+  if(!question) return;
+  faqAskBtn.disabled = true;
+  faqAskAnswer.style.display = 'block';
+  faqAskAnswer.innerHTML = '<div class="faq-a-en">Thinking...</div>';
+
+  try{
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system: FAQ_AI_SYSTEM,
+        messages: [{ role: 'user', content: question }]
+      })
+    });
+    const data = await response.json();
+    const textBlock = data?.content?.find(b => b.type === 'text');
+    const raw = textBlock ? textBlock.text : '';
+
+    const enMatch = raw.match(/EN:\s*([\s\S]*?)(?=\nUR:|$)/i);
+    const urMatch = raw.match(/UR:\s*([\s\S]*)$/i);
+    const enText = enMatch ? enMatch[1].trim() : raw.trim();
+    const urText = urMatch ? urMatch[1].trim() : '';
+
+    faqAskAnswer.innerHTML =
+      `<div class="faq-a-en">${enText}</div>` +
+      (urText ? `<div class="faq-a-ur">${urText}</div>` : '');
+  }catch(e){
+    faqAskAnswer.innerHTML = '<div class="faq-a-en">Sorry, could not get an answer right now. Please try again.</div>';
+  }finally{
+    faqAskBtn.disabled = false;
+  }
+}
+faqAskBtn.addEventListener('click', askFaqAI);
+faqAskInput.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') askFaqAI(); });
+
 // ---------- cart ----------
 let cart = {};
 try {
@@ -1717,6 +1802,7 @@ const I18N = {
     coll_kicker: "BROWSE BY CATEGORY", coll_h2: "Our Collections",
     faq_kicker: "🎙 TALKING FAQ", faq_title: "Tap a question, hear the answer",
     faq_subtitle: "Recorded voice answers in Urdu — no reading required.",
+    faq_ask_title: "Or ask your own question", faq_ask_ph: "Type your question...", faq_ask_btn: "Ask",
     contact_kicker: "VISIT OR WRITE", contact_h2: "Let's get your order sorted.",
     contact_loc_label: "LOCATION", contact_loc_val: "Multan, Punjab, Pakistan",
     contact_wa_label: "WHATSAPP", contact_email_label: "EMAIL",
@@ -1750,6 +1836,7 @@ const I18N = {
     coll_kicker: "کیٹیگری کے مطابق دیکھیں", coll_h2: "ہماری کلیکشنز",
     faq_kicker: "🎙 آواز والے سوالات", faq_title: "سوال پر ٹیپ کریں، جواب سنیں",
     faq_subtitle: "اردو میں ریکارڈ شدہ جوابات — پڑھنے کی ضرورت نہیں۔",
+    faq_ask_title: "یا اپنا سوال خود پوچھیں", faq_ask_ph: "اپنا سوال لکھیں...", faq_ask_btn: "پوچھیں",
     contact_kicker: "ملیں یا لکھیں", contact_h2: "آئیے آپ کا آرڈر مکمل کرتے ہیں۔",
     contact_loc_label: "مقام", contact_loc_val: "ملتان، پنجاب، پاکستان",
     contact_wa_label: "واٹس ایپ", contact_email_label: "ای میل",
