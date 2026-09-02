@@ -971,6 +971,38 @@
   .search-waveform{ color:#F97316; margin-right:8px; flex-shrink:0; }
 
   /* ================================================================
+     VOICE INPUT (Web Speech API) — mic buttons, real listening state
+     ================================================================ */
+  .mic-btn{
+    display:flex; align-items:center; justify-content:center; flex-shrink:0; cursor:pointer;
+    border:none; background:none; transition:transform .15s ease;
+  }
+  .mic-btn:active{ transform:scale(0.9); }
+  .search-mic-btn{
+    width:30px; height:30px; border-radius:50%; color:#F97316;
+    box-shadow:0 0 0 rgba(249,115,22,0); transition:box-shadow .3s ease, color .3s ease, transform .15s ease;
+  }
+  .search-mic-btn svg{ width:17px; height:17px; }
+  .search-mic-btn.listening{
+    color:#fff; background:#F97316; box-shadow:0 0 14px rgba(249,115,22,0.8);
+    animation:micPulse 1.2s ease-in-out infinite;
+  }
+  @keyframes micPulse{ 0%,100%{ box-shadow:0 0 10px rgba(249,115,22,0.6);} 50%{ box-shadow:0 0 20px rgba(249,115,22,0.95);} }
+  .bs-mic-btn{
+    width:38px; height:38px; border-radius:50%; background:var(--bs-cream,#FFF8ED);
+    border:1.5px solid var(--bs-line,#E7E0D2); color:var(--bs-ink,#1B2A4A);
+  }
+  .bs-mic-btn svg{ width:17px; height:17px; }
+  .bs-mic-btn.listening{
+    background:#C1440E; border-color:#C1440E; color:#fff;
+    box-shadow:0 0 14px rgba(193,68,14,0.6); animation:micPulse 1.2s ease-in-out infinite;
+  }
+  .listening-hint{
+    font-size:0.68rem; color:#F97316; text-align:center; padding:6px 0 0; display:none;
+  }
+  .listening-hint.show{ display:block; }
+
+  /* ================================================================
      BUNDLE & SAVE MATRIX
      ================================================================ */
   .bundle-section{ padding:70px 0; background:var(--ink); border-top:1px solid var(--line); text-align:center; }
@@ -1099,8 +1131,12 @@
       <div class="waveform search-waveform" id="searchWaveform">
         <span class="wf-bar"></span><span class="wf-bar"></span><span class="wf-bar"></span><span class="wf-bar"></span><span class="wf-bar"></span>
       </div>
+      <button class="mic-btn search-mic-btn" id="searchMicBtn" aria-label="Search by voice" title="Search by voice" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 11a7 7 0 0 1-14 0"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
+      </button>
       <button class="search-close" id="searchClose" aria-label="Close search">×</button>
     </div>
+    <div class="listening-hint" id="searchListeningHint">🎙 Listening...</div>
     <div class="search-results" id="searchResults">
       <div class="search-hint" data-i18n="search_hint">Start typing to search live across all products</div>
     </div>
@@ -2995,6 +3031,68 @@ startLiveTicker();
 })();
 
 // ================================================================
+// VOICE INPUT — SEARCH (real Web Speech API, no fake mic)
+// ================================================================
+const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+let searchRecognizer = null;
+let searchListening = false;
+
+function setupSearchVoiceInput(){
+  const micBtn = document.getElementById('searchMicBtn');
+  if (!micBtn) return;
+  if (!SpeechRecognitionAPI){
+    micBtn.style.display = 'none'; // honest fallback: hide, don't fake it
+    return;
+  }
+  micBtn.style.display = 'flex';
+
+  micBtn.addEventListener('click', ()=>{
+    if (searchListening){ stopSearchListening(); return; }
+    startSearchListening();
+  });
+}
+
+function startSearchListening(){
+  const micBtn = document.getElementById('searchMicBtn');
+  const wf = document.getElementById('searchWaveform');
+  const hint = document.getElementById('searchListeningHint');
+  const input = document.getElementById('searchInput');
+
+  searchRecognizer = new SpeechRecognitionAPI();
+  searchRecognizer.lang = (typeof currentLang !== 'undefined' && currentLang === 'ur') ? 'ur-PK' : 'en-US';
+  searchRecognizer.interimResults = true;
+  searchRecognizer.continuous = false;
+
+  searchRecognizer.onstart = ()=>{
+    searchListening = true;
+    micBtn.classList.add('listening');
+    wf.classList.add('wf-active');
+    hint.classList.add('show');
+  };
+  searchRecognizer.onresult = (e)=>{
+    let transcript = '';
+    for (let i = 0; i < e.results.length; i++) transcript += e.results[i][0].transcript;
+    input.value = transcript;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  };
+  searchRecognizer.onerror = ()=>{ stopSearchListening(); };
+  searchRecognizer.onend = ()=>{ stopSearchListening(); };
+
+  try { searchRecognizer.start(); } catch(e){ stopSearchListening(); }
+}
+function stopSearchListening(){
+  searchListening = false;
+  const micBtn = document.getElementById('searchMicBtn');
+  const wf = document.getElementById('searchWaveform');
+  const hint = document.getElementById('searchListeningHint');
+  if (micBtn) micBtn.classList.remove('listening');
+  if (wf) wf.classList.remove('wf-active');
+  if (hint) hint.classList.remove('show');
+  if (searchRecognizer){ try { searchRecognizer.stop(); } catch(e){} }
+}
+setupSearchVoiceInput();
+
+// ================================================================
 // BUNDLE & SAVE MATRIX — real cart-based detection, not decorative.
 // When 2+ distinct categories are in the cart, the order is genuinely
 // tagged "Priority Dispatch" in the WhatsApp message, invoice, and
@@ -3638,8 +3736,13 @@ function translateUrduQuery(q){
 
   <div id="bs-quick-replies"></div>
 
+  <div class="listening-hint" id="bsListeningHint">🎙 Listening...</div>
+
   <div class="bs-input-row">
     <input type="text" id="bs-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter')bsSendMessage()">
+    <button class="mic-btn bs-mic-btn" id="bsMicBtn" aria-label="Speak to assistant" title="Speak to assistant" style="display:none;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 11a7 7 0 0 1-14 0"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
+    </button>
     <button onclick="bsSendMessage()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
@@ -3861,6 +3964,73 @@ function bsStartConversation(){
   bsAddBotMessage("Assalam-o-Alaikum! Welcome to Bright Spot 🌞 What are you shopping for today?");
   bsRenderQuickReplies(["Fashion & clothes","Electronics","Home & kitchen"]);
 }
+
+// ================================================================
+// VOICE INPUT — CHAT ASSISTANT (real Web Speech API, no fake mic)
+// ================================================================
+const BsSpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+let bsRecognizer = null;
+let bsListening = false;
+
+function setupBsVoiceInput(){
+  const micBtn = document.getElementById('bsMicBtn');
+  if (!micBtn) return;
+  if (!BsSpeechRecognitionAPI){
+    micBtn.style.display = 'none'; // honest fallback: hide, don't fake it
+    return;
+  }
+  micBtn.style.display = 'flex';
+  micBtn.addEventListener('click', ()=>{
+    if (bsListening){ stopBsListening(); return; }
+    startBsListening();
+  });
+}
+function startBsListening(){
+  const micBtn = document.getElementById('bsMicBtn');
+  const wf = document.getElementById('bsWaveform');
+  const hint = document.getElementById('bsListeningHint');
+  const input = document.getElementById('bs-input');
+
+  bsRecognizer = new BsSpeechRecognitionAPI();
+  bsRecognizer.lang = (typeof currentLang !== 'undefined' && currentLang === 'ur') ? 'ur-PK' : 'en-US';
+  bsRecognizer.interimResults = true;
+  bsRecognizer.continuous = false;
+
+  let finalTranscript = '';
+  bsRecognizer.onstart = ()=>{
+    bsListening = true;
+    finalTranscript = '';
+    micBtn.classList.add('listening');
+    if (wf) wf.classList.add('wf-active');
+    if (hint) hint.classList.add('show');
+  };
+  bsRecognizer.onresult = (e)=>{
+    let interim = '';
+    for (let i = 0; i < e.results.length; i++){
+      if (e.results[i].isFinal) finalTranscript += e.results[i][0].transcript;
+      else interim += e.results[i][0].transcript;
+    }
+    input.value = finalTranscript + interim;
+  };
+  bsRecognizer.onerror = ()=>{ stopBsListening(); };
+  bsRecognizer.onend = ()=>{
+    stopBsListening();
+    if (input.value.trim()) bsSendMessage();
+  };
+
+  try { bsRecognizer.start(); } catch(e){ stopBsListening(); }
+}
+function stopBsListening(){
+  bsListening = false;
+  const micBtn = document.getElementById('bsMicBtn');
+  const wf = document.getElementById('bsWaveform');
+  const hint = document.getElementById('bsListeningHint');
+  if (micBtn) micBtn.classList.remove('listening');
+  if (wf) wf.classList.remove('wf-active');
+  if (hint) hint.classList.remove('show');
+  if (bsRecognizer){ try { bsRecognizer.stop(); } catch(e){} }
+}
+setupBsVoiceInput();
 
 function bsAddBotMessage(text){
   const msgs = document.getElementById('bs-msgs');
