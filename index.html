@@ -290,6 +290,18 @@
   .icon-btn svg{ width:15px; height:15px; }
   .icon-btn.cart-btn.added{ border-color:var(--cat-accent, var(--neon)); color:var(--cat-accent, var(--neon)); }
 
+  /* Product marked "Hidden" in the admin dashboard */
+  .flip-card.product-unavailable .flip-front,
+  .flip-card.product-unavailable .flip-back{ filter:grayscale(0.6) brightness(0.55); }
+  .flip-card.product-unavailable .flip-actions .icon-btn{
+    pointer-events:none; opacity:0.35; cursor:not-allowed;
+  }
+  .flip-card.product-unavailable .unavailable-badge{
+    position:absolute; top:12px; left:12px; z-index:3;
+    background:rgba(11,7,20,0.85); color:#f5f2fb; border:1px solid rgba(255,255,255,0.3);
+    font-size:0.68rem; letter-spacing:0.05em; padding:4px 10px; border-radius:4px;
+  }
+
   /* ================= CART ================= */
   .admin-link{
     display:flex; align-items:center; height:38px; padding:0 14px;
@@ -411,6 +423,7 @@
   }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
 
@@ -764,11 +777,12 @@ categories.forEach(cat=>{
     PRODUCTS[productId] = { name:p.name, note:p.note, price:p.price, img:p.img1 };
     const shareText = encodeURIComponent(`${p.name} (${p.note}) — Rs ${p.price}\n${p.desc}\nFrom Bright Spot`);
     return `
-      <div class="flip-card">
+      <div class="flip-card" data-product-name="${p.name.replace(/"/g,'&quot;')}">
         <div class="flip-card-inner">
           <div class="flip-front">
             <img src="${p.img1}" alt="${p.name}" loading="lazy">
             <div class="flip-hint">↻</div>
+            <div class="unavailable-badge" style="display:none;">Currently unavailable</div>
             <div class="flip-label">
               <h3>${p.name}</h3>
               <div class="note">${p.note}</div>
@@ -841,6 +855,47 @@ const revealObserver = new IntersectionObserver((entries)=>{
 }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
 
 document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+// ---------- shared Supabase connection ----------
+const SUPABASE_URL = "https://kcggcbenponibkzhstwi.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_hc2mWxb5rFIVmchaW8Sy3w_WjzErq1R";
+const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Maps a product's display name -> its real database UUID, so an order placed
+// on this static storefront can be linked to the actual product row admins
+// manage in the dashboard. Populated once below; used by checkout.
+let productIdByName = {};
+
+// ---------- live "Hidden" status from the admin dashboard ----------
+// The product catalog above is static (baked into this file), but a product's
+// visibility (Add to Cart / WhatsApp enabled or disabled) is checked live
+// against Supabase, so toggling "Hidden" in the admin dashboard takes effect
+// on this page without needing to redeploy the storefront.
+(async function applyLiveProductVisibility(){
+  try {
+    const { data, error } = await sbClient.from('products').select('id, name, is_active');
+    if (error || !data) return;
+
+    const visibilityByName = {};
+    data.forEach(row => {
+      visibilityByName[row.name] = row.is_active;
+      productIdByName[row.name] = row.id;
+    });
+
+    document.querySelectorAll('.flip-card[data-product-name]').forEach(card => {
+      const name = card.dataset.productName;
+      if (Object.prototype.hasOwnProperty.call(visibilityByName, name) && visibilityByName[name] === false){
+        card.classList.add('product-unavailable');
+        const badge = card.querySelector('.unavailable-badge');
+        if (badge) badge.style.display = 'block';
+      }
+    });
+  } catch (e) {
+    // If Supabase is unreachable for any reason, the storefront still works
+    // normally with every product enabled — this check only ever restricts,
+    // never breaks, the page.
+  }
+})();
 
 // ---------- cart ----------
 let cart = {};
@@ -1004,6 +1059,46 @@ function generateOrderId(){
   return `BS-${d.getFullYear().toString().slice(-2)}${(d.getMonth()+1).toString().padStart(2,'0')}${d.getDate().toString().padStart(2,'0')}-${Date.now().toString().slice(-4)}`;
 }
 
+// Saves the order into the real database (visible in the admin dashboard's
+// Orders tab). If this fails for any reason (offline, etc.), checkout still
+// completes via PDF + WhatsApp — this is a best-effort sync, not a blocker.
+async function saveOrderToSupabase(order){
+  try {
+    const orderUuid = crypto.randomUUID();
+
+    const { error: orderError } = await sbClient
+      .from('orders')
+      .insert({
+        id: orderUuid,
+        order_number: order.orderId,
+        customer_name: order.name,
+        customer_phone: order.phone,
+        customer_address: order.address,
+        customer_city: order.city,
+        notes: order.notes || null,
+        subtotal_pkr: order.subtotal,
+        payment_method: 'cod',
+        status: 'pending',
+      });
+
+    if (orderError) { console.error('Order save failed:', orderError); return; }
+
+    const itemRows = order.items.map(item => ({
+      order_id: orderUuid,
+      product_id: productIdByName[item.name] || null,
+      product_name_snapshot: item.name,
+      quantity: item.qty,
+      unit_price_pkr: priceToNumber(item.price),
+      line_total_pkr: item.lineTotal,
+    }));
+
+    const { error: itemsError } = await sbClient.from('order_items').insert(itemRows);
+    if (itemsError) console.error('Order items save failed:', itemsError);
+  } catch (e) {
+    console.error('Order save exception:', e);
+  }
+}
+
 function generateReceiptPDF(order){
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
@@ -1067,7 +1162,7 @@ function generateReceiptPDF(order){
   doc.save(`${order.orderId}-receipt.pdf`);
 }
 
-document.getElementById('placeOrderBtn').addEventListener('click', ()=>{
+document.getElementById('placeOrderBtn').addEventListener('click', async ()=>{
   const name = document.getElementById('codName').value.trim();
   const phone = document.getElementById('codPhone').value.trim();
   const address = document.getElementById('codAddress').value.trim();
@@ -1098,6 +1193,7 @@ document.getElementById('placeOrderBtn').addEventListener('click', ()=>{
   };
 
   saveOrderLog(order);
+  await saveOrderToSupabase(order);
   generateReceiptPDF(order);
 
   const itemLines = items.map(i=>`${i.name} x${i.qty} — Rs ${i.lineTotal.toLocaleString()}`).join('\n');
