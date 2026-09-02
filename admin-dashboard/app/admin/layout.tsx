@@ -28,9 +28,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
-          <strong style={{ fontFamily: 'sans-serif', fontSize: 18 }}>Bright Spot Admin</strong>
+          <Link href="/admin" style={{ fontFamily: 'sans-serif', fontSize: 18, fontWeight: 700, color: '#f5f2fb', textDecoration: 'none' }}>
+            Bright Spot Admin
+          </Link>
           <nav style={{ display: 'flex', gap: 18, fontSize: 14 }}>
-            <Link href="/admin" style={{ color: '#f5f2fb', opacity: 0.8 }}>Products</Link>
+            <Link href="/admin" style={{ color: '#f5f2fb', opacity: 0.8 }}>Dashboard</Link>
+            <Link href="/admin/products" style={{ color: '#f5f2fb', opacity: 0.8 }}>Products</Link>
             <Link href="/admin/orders" style={{ color: '#f5f2fb', opacity: 0.8 }}>Orders</Link>
             <Link href="/admin/power-editor" style={{ color: '#FB923C' }}>⚡ Power Editor</Link>
             <a href={STORE_URL} style={{ color: '#f5f2fb', opacity: 0.6 }}>← Back to store</a>
