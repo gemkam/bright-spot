@@ -1941,6 +1941,122 @@ Rules:
 let bsMessages = [];
 let bsLeadStatus = "browsing";
 
+// ── TEST MODE ─────────────────────────────────────────────────────
+// When true, the widget fakes AI replies locally — no API calls, no
+// cost, nothing sent anywhere. Good for testing the UI/flow before
+// you add Anthropic API credits. Flip to false once you're ready to
+// go live with real AI responses.
+const BS_MOCK_MODE = true;
+
+function bsParseCatalogItems(){
+  // Pulls {name, price} pairs straight out of the live BS_CATALOG string
+  // (which itself comes from Supabase), so recommendations always reflect
+  // real current inventory and real current prices.
+  const items = [];
+  const lines = (BS_CATALOG || "").split('\n');
+  lines.forEach(line => {
+    const rest = line.split(':').slice(1).join(':');
+    const re = /([^,]+?)\s*\(Rs\s*([\d,]+)[^)]*\)/g;
+    let m;
+    while((m = re.exec(rest)) !== null){
+      const name = m[1].trim();
+      const price = m[2].trim();
+      if(name) items.push({ name, price });
+    }
+  });
+  return items;
+}
+
+function bsPickMockProducts(count){
+  const items = bsParseCatalogItems();
+  const names = items.map(i => i.name);
+  const picked = [];
+  for (let i = 0; i < count && names.length > 0; i++){
+    picked.push(names[Math.floor(Math.random() * names.length)]);
+  }
+  return picked;
+}
+
+function bsPickMockRecommendations(count){
+  const items = bsParseCatalogItems();
+  const picked = [];
+  const usedIdx = new Set();
+  for (let i = 0; i < count && usedIdx.size < items.length; i++){
+    let idx;
+    do { idx = Math.floor(Math.random() * items.length); } while (usedIdx.has(idx));
+    usedIdx.add(idx);
+    picked.push(items[idx]);
+  }
+  return picked;
+}
+
+function bsMockReply(userText){
+  const lower = userText.toLowerCase();
+
+  const recommendSignals = ['recommend', 'trending', 'popular', 'best seller', 'best product', 'good product', 'suggest', 'what should i buy', 'which one is good', 'top selling', 'what\'s good', 'whats good'];
+  const hotSignals = ['want to order', 'how do i pay', 'cod', 'buy', 'deliver', 'address', 'yes i want', 'purchase'];
+  const warmSignals = ['size', 'price', 'how much', 'color', 'available', 'stock', 'quantity'];
+  const browsingSignals = ['just looking', 'just browsing', 'maybe later', 'not sure'];
+
+  const isRecommend = recommendSignals.some(s => lower.includes(s));
+  const isHot = !isRecommend && hotSignals.some(s => lower.includes(s));
+  const isWarm = !isRecommend && !isHot && warmSignals.some(s => lower.includes(s));
+  const isBrowsing = !isRecommend && !isHot && !isWarm && browsingSignals.some(s => lower.includes(s));
+
+  let reply, quickReplies, leadStatus, leadSummary, signals;
+
+  if (isRecommend){
+    const recs = bsPickMockRecommendations(3);
+    if (recs.length > 0){
+      const list = recs.map(r => `${r.name} (Rs ${r.price})`).join(', ');
+      reply = `Some of our customers' favorites right now: ${list}. Want more details on any of these, or should I narrow it down by category?`;
+    } else {
+      reply = `Let me pull up some popular picks for you — what category are you interested in? Fashion, Electronics, Home & Kitchen, Beauty, Kids & Baby, or Health & Wellness.`;
+    }
+    quickReplies = ["Tell me more", "Show other categories", "I'll take one of these"];
+    leadStatus = "warm";
+    leadSummary = `[MOCK] Asked for recommendations — shown: ${recs.map(r=>r.name).join(', ') || 'category prompt'}`;
+    signals = ["asked for recommendations", "engaged browsing"];
+  } else if (isHot){
+    const products = bsPickMockProducts(2);
+    const p1 = products[0] || "our items";
+    reply = `Great choice! ${p1} is available. Could you share your delivery city and confirm you'd like to pay COD?`;
+    quickReplies = ["Yes, COD in Multan", "What's the price?", "I need it in 2 days"];
+    leadStatus = "hot";
+    leadSummary = `[MOCK] Interested in ${p1}, mentioned ordering/COD`;
+    signals = ["commitment language", "ready to order"];
+  } else if (isWarm){
+    const products = bsPickMockProducts(2);
+    const p1 = products[0] || "our items";
+    const p2 = products[1] || "a few other options";
+    reply = `${p1} is in stock — happy to share more details. Would you like the price, or see a similar option like ${p2}?`;
+    quickReplies = ["Show me the price", "See similar items", "I'll order this"];
+    leadStatus = "warm";
+    leadSummary = `[MOCK] Asked about ${p1} — price/availability`;
+    signals = ["specific product interest"];
+  } else if (isBrowsing){
+    const products = bsPickMockProducts(2);
+    const p1 = products[0] || "our items";
+    const p2 = products[1] || "a few other options";
+    reply = `No worries, take your time! Feel free to look around — ${p1} and ${p2} are popular picks if you want a starting point.`;
+    quickReplies = ["Show me electronics", "Show me home & kitchen", "Just browsing for now"];
+    leadStatus = "browsing";
+    leadSummary = "";
+    signals = [];
+  } else {
+    const products = bsPickMockProducts(2);
+    const p1 = products[0] || "our items";
+    const p2 = products[1] || "a few other options";
+    reply = `We have great options like ${p1} and ${p2}. What are you looking for specifically — any category or item in mind?`;
+    quickReplies = ["Fashion", "Electronics", "Home & Kitchen"];
+    leadStatus = "browsing";
+    leadSummary = "";
+    signals = [];
+  }
+
+  return { reply, quick_replies: quickReplies, lead_status: leadStatus, lead_summary: leadSummary, signals };
+}
+
 function bsTogglePanel(open){
   const panel = document.getElementById('bs-panel');
   const launcher = document.getElementById('bs-launcher');
@@ -1998,7 +2114,7 @@ function bsAddLeadCard(status, summary, signals){
   const div = document.createElement('div');
   div.className='bs-lead-card';
   const tagClass = status==='hot'?'bs-hot':'bs-warm';
-  const tagLabel = status==='hot'?'🔥 Hot Lead':'👀 Warm Lead';
+  const tagLabel = (status==='hot'?'🔥 Hot Lead':'👀 Warm Lead') + (typeof BS_MOCK_MODE !== 'undefined' && BS_MOCK_MODE ? ' · TEST' : '');
   div.innerHTML = `
     <span class="bs-tag ${tagClass}">${tagLabel}</span>
     <div class="bs-row"><span>Seller notified:</span><b>Yes</b></div>
@@ -2035,6 +2151,24 @@ async function bsSendMessage(presetText){
   while(!BS_CATALOG_READY && waited < 3000){
     await new Promise(r => setTimeout(r, 150));
     waited += 150;
+  }
+
+  if (BS_MOCK_MODE){
+    // Simulated typing delay so it still feels natural, then a fake
+    // reply generated locally — zero network calls, zero cost.
+    await new Promise(r => setTimeout(r, 500 + Math.random() * 600));
+    bsRemoveTyping();
+
+    const parsed = bsMockReply(text);
+    bsMessages.push({role:'assistant', content: JSON.stringify(parsed)});
+
+    bsAddBotMessage(parsed.reply);
+    if (parsed.lead_status === 'hot' || parsed.lead_status === 'warm'){
+      bsLeadStatus = parsed.lead_status;
+      bsAddLeadCard(parsed.lead_status, parsed.lead_summary, parsed.signals);
+    }
+    bsRenderQuickReplies(parsed.quick_replies);
+    return;
   }
 
   try{
