@@ -856,6 +856,16 @@ const revealObserver = new IntersectionObserver((entries)=>{
 
 document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 
+// ---------- shared Supabase connection ----------
+const SUPABASE_URL = "https://kcggcbenponibkzhstwi.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_hc2mWxb5rFIVmchaW8Sy3w_WjzErq1R";
+const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Maps a product's display name -> its real database UUID, so an order placed
+// on this static storefront can be linked to the actual product row admins
+// manage in the dashboard. Populated once below; used by checkout.
+let productIdByName = {};
+
 // ---------- live "Hidden" status from the admin dashboard ----------
 // The product catalog above is static (baked into this file), but a product's
 // visibility (Add to Cart / WhatsApp enabled or disabled) is checked live
@@ -863,15 +873,14 @@ document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 // on this page without needing to redeploy the storefront.
 (async function applyLiveProductVisibility(){
   try {
-    const SUPABASE_URL = "https://kcggcbenponibkzhstwi.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_hc2mWxb5rFIVmchaW8Sy3w_WjzErq1R";
-    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    const { data, error } = await sb.from('products').select('name, is_active');
+    const { data, error } = await sbClient.from('products').select('id, name, is_active');
     if (error || !data) return;
 
     const visibilityByName = {};
-    data.forEach(row => { visibilityByName[row.name] = row.is_active; });
+    data.forEach(row => {
+      visibilityByName[row.name] = row.is_active;
+      productIdByName[row.name] = row.id;
+    });
 
     document.querySelectorAll('.flip-card[data-product-name]').forEach(card => {
       const name = card.dataset.productName;
@@ -1050,6 +1059,44 @@ function generateOrderId(){
   return `BS-${d.getFullYear().toString().slice(-2)}${(d.getMonth()+1).toString().padStart(2,'0')}${d.getDate().toString().padStart(2,'0')}-${Date.now().toString().slice(-4)}`;
 }
 
+// Saves the order into the real database (visible in the admin dashboard's
+// Orders tab). If this fails for any reason (offline, etc.), checkout still
+// completes via PDF + WhatsApp — this is a best-effort sync, not a blocker.
+async function saveOrderToSupabase(order){
+  try {
+    const { data: orderRow, error: orderError } = await sbClient
+      .from('orders')
+      .insert({
+        order_number: order.orderId,
+        customer_name: order.name,
+        customer_phone: order.phone,
+        customer_address: order.address,
+        customer_city: order.city,
+        notes: order.notes || null,
+        subtotal_pkr: order.subtotal,
+        payment_method: 'cod',
+        status: 'pending',
+      })
+      .select('id')
+      .single();
+
+    if (orderError || !orderRow) return;
+
+    const itemRows = order.items.map(item => ({
+      order_id: orderRow.id,
+      product_id: productIdByName[item.name] || null,
+      product_name_snapshot: item.name,
+      quantity: item.qty,
+      unit_price_pkr: priceToNumber(item.price),
+      line_total_pkr: item.lineTotal,
+    }));
+
+    await sbClient.from('order_items').insert(itemRows);
+  } catch (e) {
+    // Silently degrade — see comment above.
+  }
+}
+
 function generateReceiptPDF(order){
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
@@ -1113,7 +1160,7 @@ function generateReceiptPDF(order){
   doc.save(`${order.orderId}-receipt.pdf`);
 }
 
-document.getElementById('placeOrderBtn').addEventListener('click', ()=>{
+document.getElementById('placeOrderBtn').addEventListener('click', async ()=>{
   const name = document.getElementById('codName').value.trim();
   const phone = document.getElementById('codPhone').value.trim();
   const address = document.getElementById('codAddress').value.trim();
@@ -1144,6 +1191,7 @@ document.getElementById('placeOrderBtn').addEventListener('click', ()=>{
   };
 
   saveOrderLog(order);
+  await saveOrderToSupabase(order);
   generateReceiptPDF(order);
 
   const itemLines = items.map(i=>`${i.name} x${i.qty} — Rs ${i.lineTotal.toLocaleString()}`).join('\n');
