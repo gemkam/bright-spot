@@ -32,6 +32,7 @@ export default function ProductsTable({
   const [isPending, startTransition] = useTransition();
   const [formOpen, setFormOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [exporting, setExporting] = useState(false);
   const router = useRouter();
 
   const filtered = useMemo(() => {
@@ -75,6 +76,41 @@ export default function ProductsTable({
 
   const categoryLabel = (id: string) => categories.find((c) => c.id === id)?.label ?? id;
 
+  async function handleDownloadPdf() {
+    setExporting(true);
+    try {
+      const { default: jsPDF } = await import('jspdf');
+      const autoTable = (await import('jspdf-autotable')).default;
+
+      const doc = new jsPDF();
+      const title = categoryFilter === 'all' ? 'All Products' : categoryLabel(categoryFilter);
+
+      doc.setFontSize(16);
+      doc.text('Bright Spot — Product List', 14, 18);
+      doc.setFontSize(10);
+      doc.setTextColor(120);
+      doc.text(`${title} · ${filtered.length} products · Generated ${new Date().toLocaleString()}`, 14, 25);
+
+      autoTable(doc, {
+        startY: 32,
+        head: [['Product', 'Category', 'Price (PKR)', 'Stock', 'Status']],
+        body: filtered.map((p) => [
+          p.name,
+          categoryLabel(p.category_id),
+          Number(p.price_pkr).toLocaleString(),
+          String(p.stock_quantity),
+          p.is_active ? 'Visible' : 'Hidden',
+        ]),
+        styles: { fontSize: 9 },
+        headStyles: { fillColor: [249, 115, 22] },
+      });
+
+      doc.save(`bright-spot-products-${categoryFilter}-${Date.now()}.pdf`);
+    } finally {
+      setExporting(false);
+    }
+  }
+
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 10 }}>
@@ -88,7 +124,12 @@ export default function ProductsTable({
             </button>
           ))}
         </div>
-        <button onClick={openAddForm} style={addBtnStyle}>+ Add Product</button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button onClick={handleDownloadPdf} disabled={exporting} style={pdfBtnStyle}>
+            {exporting ? 'Generating…' : '⬇ Download PDF'}
+          </button>
+          <button onClick={openAddForm} style={addBtnStyle}>+ Add Product</button>
+        </div>
       </div>
 
       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
@@ -183,4 +224,8 @@ function rowActionBtn(color: string): React.CSSProperties {
 const addBtnStyle: React.CSSProperties = {
   padding: '8px 16px', background: 'linear-gradient(120deg, #FB923C, #F97316)',
   border: 'none', borderRadius: 6, color: '#1a0e05', fontWeight: 600, fontSize: 13, cursor: 'pointer',
+};
+const pdfBtnStyle: React.CSSProperties = {
+  padding: '8px 16px', background: 'none', border: '1px solid rgba(255,255,255,0.25)',
+  borderRadius: 6, color: '#f5f2fb', fontWeight: 500, fontSize: 13, cursor: 'pointer',
 };
