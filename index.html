@@ -76,6 +76,12 @@
   .navlinks a{ position:relative; padding-bottom:4px; transition:color .3s; }
   .navlinks a:hover{ color:var(--neon-bright); }
   .navlinks a::after{ content:''; position:absolute; left:0; bottom:0; width:0; height:1px; background:var(--neon-bright); transition:width .35s ease; }
+  .faq-nav-link{
+    border:1px solid var(--neon); border-radius:20px; padding:5px 14px !important;
+    color:var(--neon-bright) !important; font-size:0.8rem !important; white-space:nowrap;
+  }
+  .faq-nav-link::after{ display:none; }
+  .faq-nav-link:hover{ background:rgba(249,115,22,0.12); }
   .navlinks a:hover::after{ width:100%; }
   .nav-cta{
     display:flex; align-items:center; gap:8px; border:1px solid var(--neon-bright); padding:9px 18px;
@@ -171,6 +177,32 @@
 
   /* ================= OUR COLLECTIONS ================= */
   .collections-section{ background:var(--panel); padding:90px 0; text-align:center; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+
+  /* ================= TALKING FAQ ================= */
+  .faq-section{ text-align:center; scroll-margin-top:90px; }
+  .faq-title{ font-size:clamp(1.8rem, 3.4vw, 2.6rem); color:var(--ivory); margin-top:14px; }
+  .faq-subtitle{ color:var(--ivory-dim); font-size:0.95rem; margin-top:10px; margin-bottom:44px; }
+  .faq-grid{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); gap:14px;
+    max-width:1000px; margin:0 auto; text-align:left;
+  }
+  .faq-btn{
+    display:flex; align-items:center; gap:12px; padding:16px 18px;
+    background:var(--panel); border:1px solid var(--line); border-radius:8px;
+    cursor:pointer; transition:border-color .3s, background .3s; text-align:left;
+    font-family:inherit; font-size:0.92rem; color:var(--ivory); width:100%;
+  }
+  .faq-btn:hover{ border-color:var(--neon); background:color-mix(in srgb, var(--neon) 6%, var(--panel)); }
+  .faq-btn .faq-icon{
+    flex-shrink:0; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:rgba(249,115,22,0.12); color:var(--neon); font-size:1rem; transition:background .3s, transform .2s;
+  }
+  .faq-btn.playing .faq-icon{ background:var(--neon); color:#fff; animation:faqPulse 1s ease-in-out infinite; }
+  .faq-btn.unavailable{ opacity:0.45; cursor:not-allowed; }
+  .faq-btn.unavailable:hover{ border-color:var(--line); background:var(--panel); }
+  @keyframes faqPulse{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.12); } }
+  .faq-btn .faq-question{ flex:1; line-height:1.4; }
+  .faq-btn .faq-status{ font-size:0.72rem; color:var(--ivory-dim); margin-top:2px; display:block; }
   .collections-section .kicker{ justify-content:center; }
   .collections-section h2{ font-size:clamp(1.8rem, 3.4vw, 2.6rem); color:var(--ivory); margin-top:14px; margin-bottom:44px; }
   .collections-grid{
@@ -436,6 +468,7 @@
       <svg class="sparkle sparkle-2" viewBox="0 0 24 24" fill="#FB923C"><path d="M12 0l1.8 7.2L21 9l-7.2 1.8L12 18l-1.8-7.2L3 9l7.2-1.8L12 0z"/></svg>
     </a>
     <div class="navlinks">
+      <a href="#faq" class="faq-nav-link">🎙 Talking FAQ</a>
       <a href="#fashion">Fashion</a>
       <a href="#electronics">Electronics</a>
       <a href="#beauty">Beauty</a>
@@ -445,7 +478,7 @@
       <a href="#contact">Contact</a>
     </div>
     <div style="display:flex; align-items:center; gap:14px;">
-      <a class="nav-cta" href="https://wa.me/923001234567?text=Hi%20Bright%20Spot%2C%20I%27d%20like%20to%20know%20more" target="_blank" rel="noopener">
+      <a class="nav-cta wa-link" href="https://wa.me/923001234567?text=Hi%20Bright%20Spot%2C%20I%27d%20like%20to%20know%20more" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.6-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1s-.7.8-.9 1-.3.2-.6.1a6.7 6.7 0 0 1-2-1.2 7.4 7.4 0 0 1-1.4-1.7c-.1-.2 0-.4.1-.5s.3-.3.4-.5a.6.6 0 0 0 .1-.5c0-.2-.6-1.5-.8-2s-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.6 4.1c.6.3 1.1.4 1.5.5a3.6 3.6 0 0 0 1.6.1 2.6 2.6 0 0 0 1.7-1.2 2.1 2.1 0 0 0 .1-1.2c-.1-.1-.2-.2-.5-.3z"/></svg>
         WhatsApp
       </a>
@@ -514,6 +547,7 @@
 </div>
 
 <div class="mobile-menu" id="mobileMenu">
+  <a href="#faq" style="font-size:1.1rem;">🎙 Talking FAQ</a>
   <a href="#fashion">Fashion</a>
   <a href="#electronics">Electronics</a>
   <a href="#beauty">Beauty</a>
@@ -521,13 +555,13 @@
   <a href="#kids-baby">Kids &amp; Baby</a>
   <a href="#health-wellness">Wellness</a>
   <a href="#contact">Contact</a>
-  <a class="btn btn-solid" href="https://wa.me/923001234567" target="_blank" rel="noopener"><span>Order on WhatsApp</span></a>
+  <a class="btn btn-solid wa-link" href="https://wa.me/923001234567" target="_blank" rel="noopener"><span>Order on WhatsApp</span></a>
 </div>
 
 <section class="hero" id="top">
   <div class="hero-video-layer">
     <video autoplay muted loop playsinline preload="auto">
-      <source src="hero.mp4" type="video/mp4">
+      <source id="heroVideoSource" src="hero.mp4" type="video/mp4">
     </video>
   </div>
   <canvas id="emberCanvas"></canvas>
@@ -537,11 +571,11 @@
 <section class="hero-text-section">
   <div class="wrap">
     <div class="kicker">MULTAN, PAKISTAN — CASH ON DELIVERY</div>
-    <h1>Everything your home needs, <em>delivered across Multan.</em></h1>
-    <p class="lede">Home &amp; kitchen, beauty, electronics, and fashion — all in one place. Browse the collection below and order directly on WhatsApp, no account needed.</p>
+    <h1 id="heroHeadline">Everything your home needs, <em>delivered across Multan.</em></h1>
+    <p class="lede" id="heroSubtext">Home &amp; kitchen, beauty, electronics, and fashion — all in one place. Browse the collection below and order directly on WhatsApp, no account needed.</p>
     <div class="hero-actions">
       <a href="#fashion" class="btn btn-solid"><span>Start Shopping</span></a>
-      <a href="https://wa.me/923001234567?text=Hi%20Bright%20Spot%2C%20I%27d%20like%20to%20place%20an%20order" target="_blank" rel="noopener" class="btn btn-ghost">Order on WhatsApp</a>
+      <a href="https://wa.me/923001234567?text=Hi%20Bright%20Spot%2C%20I%27d%20like%20to%20place%20an%20order" target="_blank" rel="noopener" class="btn btn-ghost wa-link">Order on WhatsApp</a>
     </div>
     <div class="hero-stats">
       <div><div class="num" data-count="6">0</div><div class="lbl">categories</div></div>
@@ -561,13 +595,22 @@
 
 <div id="categoriesRoot"></div>
 
+<section class="section faq-section reveal" id="faq">
+  <div class="wrap">
+    <div class="kicker" style="justify-content:center;">🎙 TALKING FAQ</div>
+    <h2 class="faq-title">Tap a question, hear the answer</h2>
+    <p class="faq-subtitle">Recorded voice answers in Urdu — no reading required.</p>
+    <div class="faq-grid" id="faqGrid"></div>
+  </div>
+</section>
+
 <section class="section contact" id="contact">
   <div class="wrap contact-grid">
     <div class="contact-info">
       <div class="kicker" style="justify-content:flex-start;">VISIT OR WRITE</div>
       <h2 style="margin-top:16px; font-size:clamp(1.9rem,3.2vw,2.4rem); margin-bottom:34px;">Let's get your order sorted.</h2>
       <div class="item"><div class="label">LOCATION</div><div class="val">Multan, Punjab, Pakistan</div></div>
-      <div class="item"><div class="label">WHATSAPP</div><a class="val" href="https://wa.me/923001234567" target="_blank" rel="noopener">+92 300 1234567</a></div>
+      <div class="item"><div class="label">WHATSAPP</div><a class="val wa-link" href="https://wa.me/923001234567" target="_blank" rel="noopener">+92 300 1234567</a></div>
       <div class="item"><div class="label">EMAIL</div><a class="val" href="mailto:hello@brightspot.pk">hello@brightspot.pk</a></div>
       <div class="item"><div class="label">HOURS</div><div class="val">Mon–Sat, 10:00 – 22:00</div></div>
     </div>
@@ -596,12 +639,12 @@
   </div>
 </footer>
 
-<a class="wa-float" href="https://wa.me/923001234567?text=Hi%20Bright%20Spot%2C%20I%27d%20like%20to%20know%20more" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
+<a class="wa-float wa-link" href="https://wa.me/923001234567?text=Hi%20Bright%20Spot%2C%20I%27d%20like%20to%20know%20more" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
   <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.6-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1s-.7.8-.9 1-.3.2-.6.1a6.7 6.7 0 0 1-2-1.2 7.4 7.4 0 0 1-1.4-1.7c-.1-.2 0-.4.1-.5s.3-.3.4-.5a.6.6 0 0 0 .1-.5c0-.2-.6-1.5-.8-2s-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.6 4.1c.6.3 1.1.4 1.5.5a3.6 3.6 0 0 0 1.6.1 2.6 2.6 0 0 0 1.7-1.2 2.1 2.1 0 0 0 .1-1.2c-.1-.1-.2-.2-.5-.3z"/></svg>
 </a>
 
 <script>
-const WA_NUMBER = "923001234567"; // TODO: replace with the client's real WhatsApp number
+let WA_NUMBER = "923001234567"; // overridden below if the admin sets a custom number in Power Editor
 const PRODUCTS = {}; // populated as product cards render, keyed by productId
 const productIcons = {
   phonecase: `<rect x="6" y="3" width="12" height="18" rx="2.5" stroke="currentColor" stroke-width="1.4" fill="none"/><circle cx="12" cy="17.5" r="1" fill="currentColor"/>`,
@@ -866,34 +909,202 @@ const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // manage in the dashboard. Populated once below; used by checkout.
 let productIdByName = {};
 
-// ---------- live "Hidden" status from the admin dashboard ----------
-// The product catalog above is static (baked into this file), but a product's
-// visibility (Add to Cart / WhatsApp enabled or disabled) is checked live
-// against Supabase, so toggling "Hidden" in the admin dashboard takes effect
-// on this page without needing to redeploy the storefront.
-(async function applyLiveProductVisibility(){
+// ---------- live product data from the admin dashboard ----------
+// The product catalog above is static (baked into this file), but visibility
+// ("Hidden" toggle), price, and photos are all checked live against Supabase,
+// so Power Editor / Product edits take effect on this page without needing
+// to redeploy the storefront.
+(async function applyLiveProductData(){
   try {
-    const { data, error } = await sbClient.from('products').select('id, name, is_active');
+    const { data, error } = await sbClient.from('products').select('id, name, is_active, price_pkr, image_front, image_back');
     if (error || !data) return;
 
-    const visibilityByName = {};
+    const byName = {};
     data.forEach(row => {
-      visibilityByName[row.name] = row.is_active;
+      byName[row.name] = row;
       productIdByName[row.name] = row.id;
     });
 
     document.querySelectorAll('.flip-card[data-product-name]').forEach(card => {
       const name = card.dataset.productName;
-      if (Object.prototype.hasOwnProperty.call(visibilityByName, name) && visibilityByName[name] === false){
+      const row = byName[name];
+      if (!row) return;
+
+      // Hidden / visible
+      if (row.is_active === false){
         card.classList.add('product-unavailable');
         const badge = card.querySelector('.unavailable-badge');
         if (badge) badge.style.display = 'block';
       }
+
+      // Live price — update the on-card display AND the cart's price lookup,
+      // so an admin's price change is reflected everywhere immediately.
+      if (row.price_pkr != null){
+        const formattedPrice = Number(row.price_pkr).toLocaleString();
+        const priceEl = card.querySelector('.flip-back .price');
+        if (priceEl) priceEl.innerHTML = `${formattedPrice}<span> PKR</span>`;
+
+        // Update PRODUCTS[] used by the cart — find the entry by matching name
+        // (product IDs here are category-slug-index, not database UUIDs).
+        Object.keys(PRODUCTS).forEach(pid => {
+          if (PRODUCTS[pid].name === name) PRODUCTS[pid].price = formattedPrice;
+        });
+      }
+
+      // Live photos
+      if (row.image_front){
+        const frontImg = card.querySelector('.flip-front img');
+        if (frontImg && frontImg.src !== row.image_front) frontImg.src = row.image_front;
+      }
+      if (row.image_back){
+        const backImg = card.querySelector('.flip-back img');
+        if (backImg && backImg.src !== row.image_back) backImg.src = row.image_back;
+      }
     });
   } catch (e) {
     // If Supabase is unreachable for any reason, the storefront still works
-    // normally with every product enabled — this check only ever restricts,
-    // never breaks, the page.
+    // normally with its original static data — this check only ever
+    // enhances the page, never breaks it.
+  }
+})();
+
+// ---------- live site settings from Power Editor (hero video, text, WhatsApp) ----------
+(async function applyLiveSiteSettings(){
+  try {
+    const { data, error } = await sbClient.from('site_settings').select('*').eq('id', 1).single();
+    if (error || !data) return;
+
+    if (data.hero_video_url){
+      const source = document.getElementById('heroVideoSource');
+      if (source){
+        source.src = data.hero_video_url;
+        const video = source.closest('video');
+        if (video){ video.load(); video.play().catch(()=>{}); }
+      }
+    }
+
+    if (data.hero_headline){
+      const headline = document.getElementById('heroHeadline');
+      if (headline) headline.textContent = data.hero_headline;
+    }
+
+    if (data.hero_subtext){
+      const subtext = document.getElementById('heroSubtext');
+      if (subtext) subtext.textContent = data.hero_subtext;
+    }
+
+    if (data.whatsapp_number && data.whatsapp_number !== WA_NUMBER){
+      const oldNumber = WA_NUMBER;
+      WA_NUMBER = data.whatsapp_number;
+      document.querySelectorAll('.wa-link').forEach(el => {
+        el.setAttribute('href', el.getAttribute('href').replace(oldNumber, WA_NUMBER));
+      });
+    }
+  } catch (e) {
+    // Same principle as the visibility check above — this only enhances
+    // the page when it succeeds, never breaks it if Supabase is unreachable.
+  }
+})();
+
+// ---------- Talking FAQ ----------
+// Question buttons render immediately with a "Recording coming soon" state.
+// Once the matching row (same question text) exists in the `faqs` table with
+// a recorded audio_url, this fetch enables that button for playback — no
+// redeploy needed, same live-sync pattern as products.
+const FAQ_QUESTIONS = [
+  "What are your delivery timings?",
+  "How long does delivery take in Multan?",
+  "Do you deliver outside Multan?",
+  "What are your store hours?",
+  "How do I place an order?",
+  "Can I order through WhatsApp?",
+  "Is there a minimum order amount?",
+  "Can I cancel my order after placing it?",
+  "How do I track my order?",
+  "Do you accept Cash on Delivery?",
+  "Are there any online payment options?",
+  "Do I pay before or after delivery?",
+  "What categories of products do you sell?",
+  "Are your products genuine and original?",
+  "What if a product is out of stock?",
+  "Do you offer any discounts or sales?",
+  "Can I return a product if I don't like it?",
+  "What is your exchange policy?",
+  "What if I receive a damaged product?",
+  "How can I contact customer support?",
+];
+
+let faqAudioEl = null;
+let faqCurrentPlayingBtn = null;
+
+function renderFaqButtons(){
+  const grid = document.getElementById('faqGrid');
+  if (!grid) return;
+  grid.innerHTML = FAQ_QUESTIONS.map((q, i) => `
+    <button class="faq-btn unavailable" data-faq-question="${q.replace(/"/g,'&quot;')}" data-faq-index="${i}">
+      <span class="faq-icon">▶</span>
+      <span class="faq-question">
+        ${q}
+        <span class="faq-status">Recording coming soon</span>
+      </span>
+    </button>
+  `).join('');
+
+  grid.querySelectorAll('.faq-btn').forEach(btn => {
+    btn.addEventListener('click', () => playFaqAnswer(btn));
+  });
+}
+
+function playFaqAnswer(btn){
+  if (btn.classList.contains('unavailable')) return;
+  const url = btn.dataset.audioUrl;
+  if (!url) return;
+
+  // Stop whatever's currently playing (including re-clicking the same button)
+  if (faqAudioEl){
+    faqAudioEl.pause();
+    if (faqCurrentPlayingBtn) faqCurrentPlayingBtn.classList.remove('playing');
+    if (faqCurrentPlayingBtn === btn){
+      faqCurrentPlayingBtn = null;
+      faqAudioEl = null;
+      return; // acts as a toggle: clicking the playing button again just stops it
+    }
+  }
+
+  faqAudioEl = new Audio(url);
+  faqCurrentPlayingBtn = btn;
+  btn.classList.add('playing');
+  faqAudioEl.play().catch(()=>{});
+  faqAudioEl.addEventListener('ended', () => {
+    btn.classList.remove('playing');
+    faqCurrentPlayingBtn = null;
+    faqAudioEl = null;
+  });
+}
+
+(async function applyLiveFaqAudio(){
+  renderFaqButtons();
+  try {
+    const { data, error } = await sbClient.from('faqs').select('question, audio_url, is_active');
+    if (error || !data) return;
+
+    const audioByQuestion = {};
+    data.forEach(row => {
+      if (row.is_active !== false && row.audio_url) audioByQuestion[row.question] = row.audio_url;
+    });
+
+    document.querySelectorAll('.faq-btn').forEach(btn => {
+      const q = btn.dataset.faqQuestion;
+      if (audioByQuestion[q]){
+        btn.classList.remove('unavailable');
+        btn.dataset.audioUrl = audioByQuestion[q];
+        const status = btn.querySelector('.faq-status');
+        if (status) status.textContent = 'Tap to listen';
+      }
+    });
+  } catch (e) {
+    // Buttons already render in their "coming soon" state by default —
+    // if Supabase is unreachable, that's exactly how they stay.
   }
 })();
 
