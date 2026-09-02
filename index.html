@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-  
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1947,7 +1946,7 @@ let bsLeadStatus = "browsing";
 // cost, nothing sent anywhere. Good for testing the UI/flow before
 // you add Anthropic API credits. Flip to false once you're ready to
 // go live with real AI responses.
-const BS_MOCK_MODE = true;
+const BS_MOCK_MODE = false; // Gemini API wired up via /api/chat — set true to go back to free local testing
 
 function bsParseCatalogItems(){
   // Pulls {name, price} pairs straight out of the live BS_CATALOG string
