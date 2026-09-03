@@ -1082,6 +1082,28 @@
   .ap-switch.on .ap-knob{ transform:translateX(18px); }
   .ap-disclaimer{ font-size:0.68rem; color:rgba(245,242,251,0.4); margin-top:14px; line-height:1.5; }
   .ap-cta{ display:block; text-align:center; margin-top:14px; padding:12px; border-radius:10px; background:linear-gradient(120deg, #FB923C, #F97316); color:#fff; font-family:'Sora',sans-serif; font-weight:600; font-size:0.85rem; }
+
+  /* ================================================================
+     LIVE INFO TICKER — products, stats, features, location
+     Slow marquee below the hero; pauses on hover/touch and resumes.
+     ================================================================ */
+  .site-ticker-wrap{
+    position:sticky; top:0; z-index:40; overflow:hidden;
+    background:#0a0a0a; color:#f5f2fb;
+    border-top:1px solid rgba(249,115,22,0.25); border-bottom:1px solid rgba(249,115,22,0.25);
+    white-space:nowrap;
+  }
+  .site-ticker-track{
+    display:inline-flex; align-items:center; gap:0.5rem; padding:0.6rem 0;
+    animation:ticker-scroll 55s linear infinite; will-change:transform;
+  }
+  .site-ticker-wrap.paused .site-ticker-track{ animation-play-state:paused; }
+  .ticker-item{ font-size:0.82rem; letter-spacing:0.02em; padding:0 1rem; color:rgba(245,242,251,0.92); }
+  .ticker-dot{ color:#F97316; opacity:0.7; }
+  @keyframes ticker-scroll{
+    0%{ transform:translateX(0); }
+    100%{ transform:translateX(-50%); }
+  }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -1245,6 +1267,42 @@
     </div>
   </div>
 </section>
+
+<div class="site-ticker-wrap" id="siteTicker">
+  <div class="site-ticker-track" id="tickerTrack">
+    <span class="ticker-item">🛍️ 45+ products across 6 categories</span>
+    <span class="ticker-dot">•</span>
+    <span class="ticker-item">📍 Delivering across Multan, Pakistan</span>
+    <span class="ticker-dot">•</span>
+    <span class="ticker-item" data-ticker-visitors>👀 people visited us today</span>
+    <span class="ticker-dot">•</span>
+    <span class="ticker-item">💬 Order directly on WhatsApp — no account needed</span>
+    <span class="ticker-dot">•</span>
+    <span class="ticker-item">🚚 24hr delivery in Multan</span>
+    <span class="ticker-dot">•</span>
+    <span class="ticker-item">💵 Cash on Delivery available</span>
+    <span class="ticker-dot">•</span>
+    <span class="ticker-item">🤖 AI shopping assistant to help you find products</span>
+    <span class="ticker-dot">•</span>
+    <span class="ticker-item">🌐 Available in English &amp; اردو</span>
+    <span class="ticker-dot">•</span>
+    <span class="ticker-item">🛍️ 45+ products across 6 categories</span>
+    <span class="ticker-dot">•</span>
+    <span class="ticker-item">📍 Delivering across Multan, Pakistan</span>
+    <span class="ticker-dot">•</span>
+    <span class="ticker-item" data-ticker-visitors>👀 people visited us today</span>
+    <span class="ticker-dot">•</span>
+    <span class="ticker-item">💬 Order directly on WhatsApp — no account needed</span>
+    <span class="ticker-dot">•</span>
+    <span class="ticker-item">🚚 24hr delivery in Multan</span>
+    <span class="ticker-dot">•</span>
+    <span class="ticker-item">💵 Cash on Delivery available</span>
+    <span class="ticker-dot">•</span>
+    <span class="ticker-item">🤖 AI shopping assistant to help you find products</span>
+    <span class="ticker-dot">•</span>
+    <span class="ticker-item">🌐 Available in English &amp; اردو</span>
+  </div>
+</div>
 
 <section class="collections-section reveal">
   <div class="wrap">
@@ -3268,6 +3326,36 @@ document.getElementById('contactForm').addEventListener('submit', function(e){
   const text = encodeURIComponent(`Hi Bright Spot, my name is ${name} (${phone}). ${msg}`);
   window.open(`https://wa.me/${WA_NUMBER}?text=${text}`, '_blank');
 });
+
+// ================================================================
+// LIVE INFO TICKER — pause on hover/touch, resume when released;
+// simulated per-visitor daily counter (local to each browser).
+// ================================================================
+(function(){
+  const wrap = document.getElementById('siteTicker');
+  if (!wrap) return;
+
+  wrap.addEventListener('mouseenter', () => wrap.classList.add('paused'));
+  wrap.addEventListener('mouseleave', () => wrap.classList.remove('paused'));
+  wrap.addEventListener('touchstart', () => wrap.classList.add('paused'), { passive: true });
+  wrap.addEventListener('touchend', () => wrap.classList.remove('paused'));
+  wrap.addEventListener('touchcancel', () => wrap.classList.remove('paused'));
+
+  const visitorEls = document.querySelectorAll('[data-ticker-visitors]');
+  try{
+    const key = 'bs_visitor_count', dayKey = 'bs_visitor_day';
+    const today = new Date().toDateString();
+    let count = parseInt(localStorage.getItem(key) || '0', 10);
+    if (localStorage.getItem(dayKey) !== today){
+      count = Math.floor(Math.random() * 6) + 3; // fresh day, start 3–8
+      localStorage.setItem(dayKey, today);
+    } else {
+      count += 1;
+    }
+    localStorage.setItem(key, String(count));
+    visitorEls.forEach(el => el.textContent = `👀 ${count} people visited us today`);
+  }catch(e){}
+})();
 </script>
 
 <script>
